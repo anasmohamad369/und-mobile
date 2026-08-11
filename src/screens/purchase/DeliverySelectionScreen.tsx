@@ -4,7 +4,7 @@ import { Card } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
 import { colors } from '../../theme/colors';
 import { useShopContext } from '../../context/ShopContext';
-import { MapPin, Calendar, Clock, CheckCircle2, Circle, ArrowRight } from 'lucide-react-native';
+import { MapPin, Calendar, ArrowRight } from 'lucide-react-native';
 
 interface DeliverySelectionScreenProps {
   quantityKg: number;
@@ -18,13 +18,6 @@ const DATES = [
   { id: '2026-08-12', label: 'Tomorrow (12 Aug)' },
 ];
 
-const SLOTS = [
-  '10:00 AM - 12:00 PM',
-  '12:00 PM - 02:00 PM',
-  '02:00 PM - 04:00 PM',
-  '04:00 PM - 06:00 PM',
-];
-
 export const DeliverySelectionScreen: React.FC<DeliverySelectionScreenProps> = ({
   quantityKg,
   ratePerKg,
@@ -33,10 +26,9 @@ export const DeliverySelectionScreen: React.FC<DeliverySelectionScreenProps> = (
 }) => {
   const { selectedShop } = useShopContext();
   const [selectedDate, setSelectedDate] = useState<string>('2026-08-11');
-  const [selectedSlot, setSelectedSlot] = useState<string>('10:00 AM - 12:00 PM');
 
   const handleNext = () => {
-    onProceedToReview(selectedDate, selectedSlot);
+    onProceedToReview(selectedDate, 'Standard Delivery');
   };
 
   return (
@@ -55,7 +47,7 @@ export const DeliverySelectionScreen: React.FC<DeliverySelectionScreenProps> = (
         <View style={styles.shopDetailRow}>
           <MapPin size={22} color={colors.primary} style={{ marginRight: 10, marginTop: 2 }} />
           <View style={styles.shopInfo}>
-            <Text style={styles.shopName}>{selectedShop?.name || 'ABC Chicken - Bopal'}</Text>
+            <Text style={styles.shopName}>{selectedShop?.name || 'NutriFarm - Bopal'}</Text>
             <Text style={styles.shopAddress}>
               {selectedShop?.address || 'Bopal Main Road'}, {selectedShop?.city || 'Ahmedabad'}
             </Text>
@@ -82,36 +74,6 @@ export const DeliverySelectionScreen: React.FC<DeliverySelectionScreenProps> = (
               >
                 <Text style={[styles.dateText, isSelected && styles.selectedDateText]}>
                   {dateItem.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </Card>
-
-      {/* Delivery Time Slot Selection */}
-      <Card style={styles.sectionCard}>
-        <View style={styles.iconTitleRow}>
-          <Clock size={20} color={colors.primary} style={{ marginRight: 8 }} />
-          <Text style={styles.sectionLabel}>Choose Delivery Time Slot</Text>
-        </View>
-
-        <View style={styles.slotsList}>
-          {SLOTS.map(slot => {
-            const isSelected = selectedSlot === slot;
-            return (
-              <TouchableOpacity
-                key={slot}
-                style={[styles.slotOption, isSelected && styles.selectedSlotOption]}
-                onPress={() => setSelectedSlot(slot)}
-              >
-                {isSelected ? (
-                  <CheckCircle2 size={20} color={colors.primary} style={{ marginRight: 10 }} />
-                ) : (
-                  <Circle size={20} color={colors.gray400} style={{ marginRight: 10 }} />
-                )}
-                <Text style={[styles.slotText, isSelected && styles.selectedSlotText]}>
-                  {slot}
                 </Text>
               </TouchableOpacity>
             );
@@ -229,30 +191,6 @@ const styles = StyleSheet.create({
     color: colors.gray700,
   },
   selectedDateText: {
-    color: colors.primaryDark,
-  },
-  slotsList: {
-    gap: 8,
-  },
-  slotOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 14,
-    borderRadius: 12,
-    backgroundColor: colors.gray50,
-    borderWidth: 1.5,
-    borderColor: colors.gray200,
-  },
-  selectedSlotOption: {
-    backgroundColor: colors.primaryLight,
-    borderColor: colors.primary,
-  },
-  slotText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.gray800,
-  },
-  selectedSlotText: {
     color: colors.primaryDark,
   },
   summaryCard: {

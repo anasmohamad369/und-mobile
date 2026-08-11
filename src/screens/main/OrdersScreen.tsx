@@ -7,6 +7,7 @@ import {
   FlatList,
   RefreshControl,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card } from '../../components/common/Card';
 import { Badge } from '../../components/common/Badge';
 import { colors } from '../../theme/colors';
@@ -19,6 +20,7 @@ interface OrdersScreenProps {
 }
 
 export const OrdersScreen: React.FC<OrdersScreenProps> = ({ onSelectOrder }) => {
+  const insets = useSafeAreaInsets();
   const [filter, setFilter] = useState<'ALL' | 'ACTIVE' | 'COMPLETED'>('ALL');
   const { data: orders, isLoading, refetch } = useOrders(filter);
 
@@ -69,7 +71,7 @@ export const OrdersScreen: React.FC<OrdersScreenProps> = ({ onSelectOrder }) => 
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: Math.max(insets.top, 14) }]}>
         <Text style={styles.title}>My Orders</Text>
 
         {/* Filter Tabs */}
@@ -114,16 +116,16 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: colors.surface,
     paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 12,
+    paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: colors.gray200,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '800',
+    fontSize: 26,
+    fontWeight: '900',
     color: colors.gray900,
     marginBottom: 12,
+    letterSpacing: -0.5,
   },
   tabContainer: {
     flexDirection: 'row',
@@ -156,6 +158,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
+    paddingBottom: 40,
   },
   orderCard: {
     marginBottom: 14,

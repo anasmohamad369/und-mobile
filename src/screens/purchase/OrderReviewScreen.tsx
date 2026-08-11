@@ -12,7 +12,7 @@ interface OrderReviewScreenProps {
   quantityKg: number;
   ratePerKg: number;
   deliveryDate: string;
-  deliverySlot: string;
+  deliverySlot?: string;
   onProceedToPayment: (order: Order, payment: PaymentInitiation) => void;
 }
 
@@ -20,7 +20,7 @@ export const OrderReviewScreen: React.FC<OrderReviewScreenProps> = ({
   quantityKg,
   ratePerKg,
   deliveryDate,
-  deliverySlot,
+  deliverySlot = 'Standard Delivery',
   onProceedToPayment,
 }) => {
   const { selectedShop } = useShopContext();
@@ -34,7 +34,6 @@ export const OrderReviewScreen: React.FC<OrderReviewScreenProps> = ({
   const handleCreateOrder = async () => {
     setErrorMsg('');
     try {
-      // Idempotency Key to prevent duplicate submissions on double-tap
       const idempotencyKey = `IDEM_ORDER_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
       const res = await createOrderMutation.mutateAsync({
@@ -64,7 +63,7 @@ export const OrderReviewScreen: React.FC<OrderReviewScreenProps> = ({
           <MapPin size={20} color={colors.primary} style={{ marginRight: 8 }} />
           <Text style={styles.cardHeaderTitle}>Delivering To</Text>
         </View>
-        <Text style={styles.shopTitle}>{selectedShop?.name || 'ABC Chicken - Bopal'}</Text>
+        <Text style={styles.shopTitle}>{selectedShop?.name || 'NutriFarm - Bopal'}</Text>
         <Text style={styles.shopSub}>
           {selectedShop?.address}, {selectedShop?.city} - {selectedShop?.pincode}
         </Text>
@@ -103,11 +102,6 @@ export const OrderReviewScreen: React.FC<OrderReviewScreenProps> = ({
         <View style={styles.row}>
           <Text style={styles.label}>Delivery Date</Text>
           <Text style={styles.valBold}>{deliveryDate}</Text>
-        </View>
-
-        <View style={styles.row}>
-          <Text style={styles.label}>Time Slot</Text>
-          <Text style={styles.valBold}>{deliverySlot}</Text>
         </View>
       </Card>
 
