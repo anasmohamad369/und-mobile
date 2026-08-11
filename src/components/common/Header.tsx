@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthContext } from '../../context/AuthContext';
 import { useShopContext } from '../../context/ShopContext';
 import { colors } from '../../theme/colors';
@@ -11,6 +12,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onNotificationPress, unreadNotifications = true }) => {
+  const insets = useSafeAreaInsets();
   const { retailer } = useAuthContext();
   const { selectedShop, setSelectorModalVisible } = useShopContext();
 
@@ -22,13 +24,13 @@ export const Header: React.FC<HeaderProps> = ({ onNotificationPress, unreadNotif
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: Math.max(insets.top, 14) }]}>
       <View style={styles.topRow}>
         <View style={styles.greetingCol}>
           <Text style={styles.greetingText}>
             {getGreeting()}, {retailer?.ownerName || 'Retailer'}
           </Text>
-          <Text style={styles.businessNameText}>{retailer?.businessName || 'ABC Chicken Traders'}</Text>
+          <Text style={styles.businessNameText}>{retailer?.businessName || 'NutriFarm Chicken Traders'}</Text>
         </View>
 
         {onNotificationPress && (
@@ -62,7 +64,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.surface,
     paddingHorizontal: 20,
-    paddingTop: 14,
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: colors.gray200,
@@ -77,15 +78,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   greetingText: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '700',
     color: colors.gray500,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: 0.6,
   },
   businessNameText: {
     fontSize: 20,
-    fontWeight: '800',
+    fontWeight: '900',
     color: colors.gray900,
     marginTop: 2,
   },

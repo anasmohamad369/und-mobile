@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
 import { colors } from '../../theme/colors';
 import { useAuthContext } from '../../context/AuthContext';
 import { authApi } from '../../api/auth.api';
@@ -14,6 +14,7 @@ interface MobileNumberScreenProps {
 }
 
 export const MobileNumberScreen: React.FC<MobileNumberScreenProps> = ({ onContinue, onBack }) => {
+  const insets = useSafeAreaInsets();
   const { setVerifiedMobile } = useAuthContext();
   const [mobile, setMobile] = useState<string>('9876543210');
   const [error, setError] = useState<string>('');
@@ -47,21 +48,21 @@ export const MobileNumberScreen: React.FC<MobileNumberScreenProps> = ({ onContin
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
+      <View style={[styles.topHeader, { paddingTop: Math.max(insets.top, 16) }]}>
+        <TouchableOpacity style={styles.backBtn} activeOpacity={0.7} onPress={onBack}>
+          <ArrowLeft size={22} color={colors.gray900} />
+        </TouchableOpacity>
+      </View>
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        <Card style={styles.card}>
-          <View style={styles.topRow}>
-            <TouchableOpacity style={styles.backBtn} activeOpacity={0.7} onPress={onBack}>
-              <ArrowLeft size={22} color={colors.gray900} />
-            </TouchableOpacity>
-          </View>
-
+        <View style={styles.contentBody}>
           <View style={styles.header}>
             <View style={styles.iconBox}>
-              <Smartphone size={32} color={colors.primary} />
+              <Smartphone size={30} color={colors.primary} />
             </View>
             <Text style={styles.title}>Create Your Account</Text>
             <Text style={styles.subtitle}>Enter your mobile number to get started with NutriFarm</Text>
@@ -94,12 +95,12 @@ export const MobileNumberScreen: React.FC<MobileNumberScreenProps> = ({ onContin
             onPress={handleSendOtp}
             style={styles.button}
           />
+        </View>
 
-          <View style={styles.securityNote}>
-            <ShieldCheck size={14} color={colors.gray500} style={{ marginRight: 6 }} />
-            <Text style={styles.securityText}>Verified NutriFarm Registration</Text>
-          </View>
-        </Card>
+        <View style={styles.securityNote}>
+          <ShieldCheck size={16} color={colors.gray500} style={{ marginRight: 6 }} />
+          <Text style={styles.securityText}>Verified NutriFarm Platform Registration</Text>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -108,29 +109,14 @@ export const MobileNumberScreen: React.FC<MobileNumberScreenProps> = ({ onContin
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  card: {
     backgroundColor: colors.surface,
-    borderRadius: 24,
-    padding: 24,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    elevation: 4,
   },
-  topRow: {
-    alignItems: 'flex-start',
-    marginBottom: 10,
+  topHeader: {
+    paddingHorizontal: 20,
+    paddingBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
   },
   backBtn: {
     width: 40,
@@ -140,48 +126,60 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingBottom: 30,
+    justifyContent: 'space-between',
+  },
+  contentBody: {
+    paddingTop: 10,
+  },
   header: {
     alignItems: 'flex-start',
-    marginBottom: 20,
+    marginBottom: 28,
   },
   iconBox: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
     backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    marginBottom: 18,
   },
   title: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: '900',
     color: colors.gray900,
     letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 15,
     color: colors.gray500,
-    marginTop: 4,
+    marginTop: 6,
+    lineHeight: 22,
     fontWeight: '500',
   },
   formGroup: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
   disclaimerText: {
-    fontSize: 12,
+    fontSize: 13,
     color: colors.gray500,
     marginTop: -8,
   },
   button: {
-    marginTop: 4,
-    marginBottom: 16,
+    marginTop: 8,
   },
   securityNote: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 8,
+    paddingVertical: 16,
   },
   securityText: {
     fontSize: 12,

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
 import { colors } from '../../theme/colors';
 import { useAuthContext } from '../../context/AuthContext';
 import { authApi } from '../../api/auth.api';
@@ -19,6 +19,7 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
   onVerifiedExistingUser,
   onBack,
 }) => {
+  const insets = useSafeAreaInsets();
   const { verifiedMobile, setVerificationToken, loginWithExistingAccount } = useAuthContext();
   const [otp, setOtp] = useState<string>('123456');
   const [error, setError] = useState<string>('');
@@ -68,25 +69,25 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
+      <View style={[styles.topHeader, { paddingTop: Math.max(insets.top, 16) }]}>
+        <TouchableOpacity style={styles.backBtn} activeOpacity={0.7} onPress={onBack}>
+          <ArrowLeft size={22} color={colors.gray900} />
+        </TouchableOpacity>
+      </View>
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        <Card style={styles.card}>
-          <View style={styles.topRow}>
-            <TouchableOpacity style={styles.backBtn} activeOpacity={0.7} onPress={onBack}>
-              <ArrowLeft size={22} color={colors.gray900} />
-            </TouchableOpacity>
-          </View>
-
+        <View style={styles.contentBody}>
           <View style={styles.header}>
             <View style={styles.iconBox}>
-              <ShieldCheck size={32} color={colors.primary} />
+              <ShieldCheck size={30} color={colors.primary} />
             </View>
             <Text style={styles.title}>Verify Your Mobile</Text>
             <Text style={styles.subtitle}>
-              We sent a 6-digit OTP to: {'\n'}
+              We sent a 6-digit OTP code to: {'\n'}
               <Text style={styles.mobileHighlight}>+91 {verifiedMobile || '9876543210'}</Text>
             </Text>
           </View>
@@ -133,7 +134,7 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
             onPress={handleVerifyOtp}
             style={styles.button}
           />
-        </Card>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -142,29 +143,14 @@ export const OtpVerificationScreen: React.FC<OtpVerificationScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  card: {
     backgroundColor: colors.surface,
-    borderRadius: 24,
-    padding: 24,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    elevation: 4,
   },
-  topRow: {
-    alignItems: 'flex-start',
-    marginBottom: 10,
+  topHeader: {
+    paddingHorizontal: 20,
+    paddingBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
   },
   backBtn: {
     width: 40,
@@ -174,36 +160,49 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingBottom: 30,
+    justifyContent: 'space-between',
+  },
+  contentBody: {
+    paddingTop: 10,
+  },
   header: {
-    marginBottom: 20,
+    alignItems: 'flex-start',
+    marginBottom: 28,
   },
   iconBox: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
     backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    marginBottom: 18,
   },
   title: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: '900',
     color: colors.gray900,
     letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 15,
     color: colors.gray600,
-    marginTop: 4,
-    lineHeight: 20,
+    marginTop: 6,
+    lineHeight: 22,
   },
   mobileHighlight: {
     fontWeight: '800',
     color: colors.gray900,
   },
   formGroup: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
   otpInput: {
     letterSpacing: 8,
@@ -216,7 +215,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.infoLight,
     padding: 10,
     borderRadius: 10,
-    marginTop: 8,
+    marginTop: 10,
   },
   devHintText: {
     fontSize: 12,
@@ -227,7 +226,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 16,
+    marginTop: 18,
   },
   resendPrompt: {
     fontSize: 13,
@@ -246,6 +245,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   button: {
-    marginTop: 4,
+    marginTop: 8,
   },
 });

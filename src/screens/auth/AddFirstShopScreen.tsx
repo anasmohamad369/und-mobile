@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
 import { colors } from '../../theme/colors';
 import { Store, ArrowLeft } from 'lucide-react-native';
 
@@ -23,6 +23,7 @@ export const AddFirstShopScreen: React.FC<AddFirstShopScreenProps> = ({
   onBack,
   loading = false,
 }) => {
+  const insets = useSafeAreaInsets();
   const [name, setName] = useState<string>('NutriFarm - Bopal');
   const [mobile, setMobile] = useState<string>('9876543211');
   const [address, setAddress] = useState<string>('Shop 4, Bopal Main Road, Opp SBI Bank');
@@ -54,17 +55,17 @@ export const AddFirstShopScreen: React.FC<AddFirstShopScreenProps> = ({
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Card style={styles.card}>
-        <View style={styles.topRow}>
-          <TouchableOpacity style={styles.backBtn} activeOpacity={0.7} onPress={onBack}>
-            <ArrowLeft size={22} color={colors.gray900} />
-          </TouchableOpacity>
-        </View>
+    <View style={styles.container}>
+      <View style={[styles.topHeader, { paddingTop: Math.max(insets.top, 16) }]}>
+        <TouchableOpacity style={styles.backBtn} activeOpacity={0.7} onPress={onBack}>
+          <ArrowLeft size={22} color={colors.gray900} />
+        </TouchableOpacity>
+      </View>
 
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <View style={styles.iconBox}>
-            <Store size={32} color={colors.primary} />
+            <Store size={30} color={colors.primary} />
           </View>
           <Text style={styles.title}>Add Your First Shop</Text>
           <Text style={styles.subtitle}>You can add more shops later from your profile.</Text>
@@ -140,33 +141,22 @@ export const AddFirstShopScreen: React.FC<AddFirstShopScreenProps> = ({
           onPress={handleSaveShop}
           style={styles.button}
         />
-      </Card>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    padding: 16,
-    paddingBottom: 30,
-  },
-  card: {
     backgroundColor: colors.surface,
-    borderRadius: 24,
-    padding: 20,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    elevation: 4,
   },
-  topRow: {
-    alignItems: 'flex-start',
-    marginBottom: 10,
+  topHeader: {
+    paddingHorizontal: 20,
+    paddingBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
   },
   backBtn: {
     width: 40,
@@ -176,26 +166,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingBottom: 30,
+  },
   header: {
-    marginBottom: 16,
+    marginBottom: 20,
   },
   iconBox: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
     backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: '900',
     color: colors.gray900,
     letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 13,
+    fontSize: 14,
     color: colors.gray500,
     marginTop: 4,
   },
@@ -204,5 +201,6 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 10,
+    marginBottom: 20,
   },
 });

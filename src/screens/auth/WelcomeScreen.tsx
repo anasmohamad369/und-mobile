@@ -41,6 +41,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted, onLo
           title="I Already Have an Account"
           variant="outline"
           size="lg"
+          textStyle={styles.loginBtnText}
           onPress={onLogin}
           style={styles.loginBtn}
         />
@@ -102,6 +103,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   loginBtn: {
+    backgroundColor: '#F8FAFC',
     borderColor: colors.gray300,
+    borderWidth: 1.5,
+    borderRadius: 14,
+  },
+  loginBtnText: {
+    color: '#0F172A',
+    fontWeight: '800',
+    fontSize: 15,
   },
 });

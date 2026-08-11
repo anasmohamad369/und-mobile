@@ -39,24 +39,44 @@ export const Button: React.FC<ButtonProps> = ({
     // Size
     if (size === 'sm') base = { ...base, paddingVertical: 8, paddingHorizontal: 14, borderRadius: 8 };
     if (size === 'md') base = { ...base, paddingVertical: 14, paddingHorizontal: 20, borderRadius: 12 };
-    if (size === 'lg') base = { ...base, paddingVertical: 18, paddingHorizontal: 24, borderRadius: 14 };
+    if (size === 'lg') base = { ...base, paddingVertical: 16, paddingHorizontal: 24, borderRadius: 14 };
 
     // Variant
     switch (variant) {
       case 'primary':
-        base = { ...base, backgroundColor: colors.primary };
+        base = {
+          ...base,
+          backgroundColor: colors.primary,
+          shadowColor: colors.primary,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.2,
+          shadowRadius: 8,
+          elevation: 3,
+        };
         break;
       case 'secondary':
-        base = { ...base, backgroundColor: colors.secondary };
+        base = { ...base, backgroundColor: colors.secondary, elevation: 2 };
         break;
       case 'outline':
-        base = { ...base, backgroundColor: 'transparent', borderWidth: 1.5, borderColor: colors.gray300 };
+        base = {
+          ...base,
+          backgroundColor: '#F8FAFC',
+          borderWidth: 1.5,
+          borderColor: colors.gray300,
+          elevation: 0,
+          shadowOpacity: 0,
+        };
         break;
       case 'ghost':
-        base = { ...base, backgroundColor: 'transparent' };
+        base = {
+          ...base,
+          backgroundColor: 'transparent',
+          elevation: 0,
+          shadowOpacity: 0,
+        };
         break;
       case 'danger':
-        base = { ...base, backgroundColor: colors.danger };
+        base = { ...base, backgroundColor: colors.danger, elevation: 2 };
         break;
     }
 
@@ -72,7 +92,7 @@ export const Button: React.FC<ButtonProps> = ({
 
     if (size === 'sm') baseText = { ...baseText, fontSize: 13 };
     if (size === 'md') baseText = { ...baseText, fontSize: 15 };
-    if (size === 'lg') baseText = { ...baseText, fontSize: 17 };
+    if (size === 'lg') baseText = { ...baseText, fontSize: 16 };
 
     switch (variant) {
       case 'outline':
@@ -112,11 +132,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
   },
   text: {
     fontWeight: '700',

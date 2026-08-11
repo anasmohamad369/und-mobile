@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthContext } from '../context/AuthContext';
 import { useNotificationContext } from '../context/NotificationContext';
 import { useShopContext } from '../context/ShopContext';
@@ -38,6 +38,7 @@ type ScreenState =
   | { name: 'NOTIFICATIONS' };
 
 export const RootNavigator: React.FC = () => {
+  const insets = useSafeAreaInsets();
   const { isAuthenticated, isLoading } = useAuthContext();
   const { toast, hideToast } = useNotificationContext();
   const { setSelectorModalVisible } = useShopContext();
@@ -60,7 +61,7 @@ export const RootNavigator: React.FC = () => {
   const handleBackToTabs = () => setScreen({ name: 'TABS' });
 
   const renderHeaderBar = (title: string, onBack: () => void) => (
-    <View style={styles.headerBar}>
+    <View style={[styles.headerBar, { paddingTop: Math.max(insets.top, 14) }]}>
       <TouchableOpacity style={styles.backBtn} activeOpacity={0.7} onPress={onBack}>
         <ArrowLeft size={22} color={colors.gray900} />
       </TouchableOpacity>
@@ -70,7 +71,7 @@ export const RootNavigator: React.FC = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Toast Alert Notification Banner */}
       {toast && (
         <TouchableOpacity style={styles.toastBanner} activeOpacity={0.9} onPress={hideToast}>
@@ -214,7 +215,7 @@ export const RootNavigator: React.FC = () => {
           <NotificationsScreen />
         </View>
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -240,7 +241,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: colors.surface,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.gray200,
   },

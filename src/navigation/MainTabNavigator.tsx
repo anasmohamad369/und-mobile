@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HomeScreen } from '../screens/main/HomeScreen';
 import { OrdersScreen } from '../screens/main/OrdersScreen';
 import { ShopsScreen } from '../screens/main/ShopsScreen';
@@ -32,6 +33,9 @@ export const MainTabNavigator: React.FC<MainTabNavigatorProps> = ({
   onNavigateToNotifications,
   onNavigateToEditProfile,
 }) => {
+  const insets = useSafeAreaInsets();
+  const bottomPadding = Math.max(insets.bottom, 12);
+
   return (
     <View style={styles.container}>
       <View style={styles.content}>
@@ -60,17 +64,19 @@ export const MainTabNavigator: React.FC<MainTabNavigatorProps> = ({
         )}
       </View>
 
-      {/* Bottom Navigation Bar */}
-      <View style={styles.bottomBar}>
+      {/* Seamless Edge-to-Edge Bottom Navigation Bar */}
+      <View style={[styles.bottomBar, { paddingBottom: bottomPadding }]}>
         <TouchableOpacity
           style={styles.tabItem}
           activeOpacity={0.8}
           onPress={() => onTabChange('HOME')}
         >
-          <Home
-            size={22}
-            color={currentTab === 'HOME' ? colors.primary : colors.gray500}
-          />
+          <View style={[styles.iconWrapper, currentTab === 'HOME' && styles.activeIconWrapper]}>
+            <Home
+              size={22}
+              color={currentTab === 'HOME' ? colors.primary : '#64748B'}
+            />
+          </View>
           <Text style={[styles.tabLabel, currentTab === 'HOME' && styles.activeTabLabel]}>
             Home
           </Text>
@@ -81,10 +87,12 @@ export const MainTabNavigator: React.FC<MainTabNavigatorProps> = ({
           activeOpacity={0.8}
           onPress={() => onTabChange('ORDERS')}
         >
-          <ShoppingBag
-            size={22}
-            color={currentTab === 'ORDERS' ? colors.primary : colors.gray500}
-          />
+          <View style={[styles.iconWrapper, currentTab === 'ORDERS' && styles.activeIconWrapper]}>
+            <ShoppingBag
+              size={22}
+              color={currentTab === 'ORDERS' ? colors.primary : '#64748B'}
+            />
+          </View>
           <Text style={[styles.tabLabel, currentTab === 'ORDERS' && styles.activeTabLabel]}>
             Orders
           </Text>
@@ -95,10 +103,12 @@ export const MainTabNavigator: React.FC<MainTabNavigatorProps> = ({
           activeOpacity={0.8}
           onPress={() => onTabChange('SHOPS')}
         >
-          <Store
-            size={22}
-            color={currentTab === 'SHOPS' ? colors.primary : colors.gray500}
-          />
+          <View style={[styles.iconWrapper, currentTab === 'SHOPS' && styles.activeIconWrapper]}>
+            <Store
+              size={22}
+              color={currentTab === 'SHOPS' ? colors.primary : '#64748B'}
+            />
+          </View>
           <Text style={[styles.tabLabel, currentTab === 'SHOPS' && styles.activeTabLabel]}>
             Shops
           </Text>
@@ -109,10 +119,12 @@ export const MainTabNavigator: React.FC<MainTabNavigatorProps> = ({
           activeOpacity={0.8}
           onPress={() => onTabChange('PROFILE')}
         >
-          <User
-            size={22}
-            color={currentTab === 'PROFILE' ? colors.primary : colors.gray500}
-          />
+          <View style={[styles.iconWrapper, currentTab === 'PROFILE' && styles.activeIconWrapper]}>
+            <User
+              size={22}
+              color={currentTab === 'PROFILE' ? colors.primary : '#64748B'}
+            />
+          </View>
           <Text style={[styles.tabLabel, currentTab === 'PROFILE' && styles.activeTabLabel]}>
             Profile
           </Text>
@@ -132,14 +144,14 @@ const styles = StyleSheet.create({
   },
   bottomBar: {
     flexDirection: 'row',
-    height: 64,
+    paddingTop: 10,
     backgroundColor: colors.surface,
     borderTopWidth: 1,
     borderTopColor: colors.gray200,
     elevation: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 4,
   },
   tabItem: {
@@ -147,11 +159,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  iconWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 2,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+  },
+  activeIconWrapper: {
+    backgroundColor: colors.primaryLight,
+  },
   tabLabel: {
     fontSize: 11,
     fontWeight: '600',
-    color: colors.gray500,
-    marginTop: 3,
+    color: '#64748B',
+    marginTop: 4,
   },
   activeTabLabel: {
     color: colors.primary,
