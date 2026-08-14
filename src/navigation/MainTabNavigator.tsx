@@ -9,7 +9,7 @@ import { HelpCentreScreen } from '../screens/main/HelpCentreScreen';
 import { useLanguage } from '../context/LanguageContext';
 
 import { colors } from '../theme/colors';
-import { Home, FileText, ShoppingCart, Headset, User } from 'lucide-react-native';
+import { Home, FileText, Headset, User } from 'lucide-react-native';
 
 export type MainTabType = 'HOME' | 'ORDERS' | 'SHOPS' | 'HELP' | 'PROFILE';
 
@@ -40,7 +40,7 @@ export const MainTabNavigator: React.FC<MainTabNavigatorProps> = ({
   const { t } = useLanguage();
   const bottomPadding = Math.max(insets.bottom, 10);
 
-  const activeColor = '#FF5500';
+  const activeColor = colors.primary;
   const inactiveColor = '#64748B';
 
   return (
@@ -70,16 +70,15 @@ export const MainTabNavigator: React.FC<MainTabNavigatorProps> = ({
             onViewRequirements={onNavigateToRequirements}
             onViewNotifications={onNavigateToNotifications}
           />
-
         )}
       </View>
 
-      {/* Modern Curved Floating Bottom Navigation Bar */}
+      {/* Modern Bottom Navigation Bar */}
       <View style={[styles.bottomBarContainer, { paddingBottom: bottomPadding }]}>
         {/* Tab 1: Home */}
         <TouchableOpacity
           style={styles.tabItem}
-          activeOpacity={0.8}
+          activeOpacity={0.7}
           onPress={() => onTabChange('HOME')}
         >
           <Home
@@ -94,7 +93,7 @@ export const MainTabNavigator: React.FC<MainTabNavigatorProps> = ({
         {/* Tab 2: Orders */}
         <TouchableOpacity
           style={styles.tabItem}
-          activeOpacity={0.8}
+          activeOpacity={0.7}
           onPress={() => onTabChange('ORDERS')}
         >
           <FileText
@@ -106,22 +105,10 @@ export const MainTabNavigator: React.FC<MainTabNavigatorProps> = ({
           </Text>
         </TouchableOpacity>
 
-        {/* Central Floating Buy Now Button */}
-        <View style={styles.centerButtonWrapper}>
-          <TouchableOpacity
-            style={styles.floatingBuyBtn}
-            activeOpacity={0.88}
-            onPress={onNavigateToBuy}
-          >
-            <ShoppingCart size={24} color="#FFFFFF" />
-            <Text style={styles.floatingBuyBtnText}>{t('buyNow')}</Text>
-          </TouchableOpacity>
-        </View>
-
         {/* Tab 3: Help Centre */}
         <TouchableOpacity
           style={styles.tabItem}
-          activeOpacity={0.8}
+          activeOpacity={0.7}
           onPress={() => onTabChange('HELP')}
         >
           <Headset
@@ -136,7 +123,7 @@ export const MainTabNavigator: React.FC<MainTabNavigatorProps> = ({
         {/* Tab 4: Profile */}
         <TouchableOpacity
           style={styles.tabItem}
-          activeOpacity={0.8}
+          activeOpacity={0.7}
           onPress={() => onTabChange('PROFILE')}
         >
           <User
@@ -163,10 +150,12 @@ const styles = StyleSheet.create({
   bottomBarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-around',
     backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     paddingTop: 10,
+    paddingHorizontal: 8,
     position: 'absolute',
     bottom: 0,
     left: 0,
@@ -183,44 +172,19 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 4,
+    paddingVertical: 6,
   },
   tabLabel: {
     fontSize: 11,
     fontWeight: '600',
     color: '#64748B',
     marginTop: 4,
+    textAlign: 'center',
   },
   activeTabLabel: {
-    color: '#FF5500',
+    color: colors.primary,
     fontWeight: '800',
   },
-  centerButtonWrapper: {
-    flex: 1.2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: -30,
-  },
-  floatingBuyBtn: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#FF5500',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#FF5500',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 8,
-    borderWidth: 3,
-    borderColor: '#FFFFFF',
-  },
-  floatingBuyBtnText: {
-    color: '#FFFFFF',
-    fontSize: 9,
-    fontWeight: '900',
-    marginTop: 1,
-  },
 });
+
 

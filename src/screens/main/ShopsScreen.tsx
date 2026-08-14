@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
-    paddingBottom: 20,
+    paddingBottom: 85,
   },
   shopCard: {
     marginBottom: 12,

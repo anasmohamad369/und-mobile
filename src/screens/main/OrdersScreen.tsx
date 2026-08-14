@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
-    paddingBottom: 40,
+    paddingBottom: 85,
   },
   orderCard: {
     marginBottom: 14,
