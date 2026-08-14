@@ -1,12 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, RefreshControl } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card } from '../../components/common/Card';
 import { Badge } from '../../components/common/Badge';
 import { Button } from '../../components/common/Button';
 import { colors } from '../../theme/colors';
 import { useRequirements } from '../../hooks/useRequirements';
 import { Requirement } from '../../types';
-import { CalendarRange, Plus, TrendingUp } from 'lucide-react-native';
+import { CalendarRange, Plus } from 'lucide-react-native';
 
 interface RequirementsListScreenProps {
   onAddRequirement: () => void;
@@ -15,6 +16,7 @@ interface RequirementsListScreenProps {
 export const RequirementsListScreen: React.FC<RequirementsListScreenProps> = ({
   onAddRequirement,
 }) => {
+  const insets = useSafeAreaInsets();
   const { data: requirements, isLoading, refetch } = useRequirements();
 
   const renderRequirementItem = ({ item }: { item: Requirement }) => {
@@ -60,7 +62,7 @@ export const RequirementsListScreen: React.FC<RequirementsListScreenProps> = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: Math.max(insets.top, 14) }]}>
         <Text style={styles.title}>Expected Requirements</Text>
         <Text style={styles.subtitle}>
           Future demand forecast signals submitted for your shops.
@@ -77,7 +79,7 @@ export const RequirementsListScreen: React.FC<RequirementsListScreenProps> = ({
 
       <View style={styles.footer}>
         <Button
-          title="+ Add Expected Requirement"
+          title="Add Expected Requirement"
           variant="primary"
           size="lg"
           icon={<Plus size={20} color={colors.textWhite} />}
@@ -96,8 +98,7 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: colors.surface,
     paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 16,
+    paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: colors.gray200,
   },
@@ -113,6 +114,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
+    paddingBottom: 20,
   },
   card: {
     marginBottom: 14,

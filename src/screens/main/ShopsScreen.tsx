@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
 import { colors } from '../../theme/colors';
@@ -12,6 +13,7 @@ interface ShopsScreenProps {
 }
 
 export const ShopsScreen: React.FC<ShopsScreenProps> = ({ onAddShop }) => {
+  const insets = useSafeAreaInsets();
   const { shops, selectedShop, selectShop } = useShopContext();
 
   const renderShopItem = ({ item }: { item: Shop }) => {
@@ -57,7 +59,7 @@ export const ShopsScreen: React.FC<ShopsScreenProps> = ({ onAddShop }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: Math.max(insets.top, 14) }]}>
         <Text style={styles.title}>Your Shops</Text>
         <Text style={styles.subtitle}>
           Manage shop addresses for wholesale chicken delivery.
@@ -73,7 +75,7 @@ export const ShopsScreen: React.FC<ShopsScreenProps> = ({ onAddShop }) => {
 
       <View style={styles.footer}>
         <Button
-          title="+ Add Another Shop"
+          title="Add Another Shop"
           variant="primary"
           size="lg"
           icon={<Plus size={20} color={colors.textWhite} />}
@@ -92,15 +94,15 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: colors.surface,
     paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 16,
+    paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: colors.gray200,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '800',
+    fontSize: 26,
+    fontWeight: '900',
     color: colors.gray900,
+    letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 13,
@@ -109,6 +111,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
+    paddingBottom: 20,
   },
   shopCard: {
     marginBottom: 12,

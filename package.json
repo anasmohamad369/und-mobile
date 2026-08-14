@@ -5,7 +5,7 @@
   "scripts": {
     "start": "ANDROID_HOME=$HOME/Library/Android/sdk PATH=$PATH:$HOME/Library/Android/sdk/platform-tools:$HOME/Library/Android/sdk/emulator expo start",
     "android": "ANDROID_HOME=$HOME/Library/Android/sdk PATH=$PATH:$HOME/Library/Android/sdk/platform-tools:$HOME/Library/Android/sdk/emulator expo start --android",
-    "ios": "expo start --ios",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "tsc": "tsc --noEmit"
   },
