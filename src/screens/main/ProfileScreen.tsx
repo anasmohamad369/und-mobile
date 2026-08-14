@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card } from '../../components/common/Card';
 import { colors } from '../../theme/colors';
 import { useAuthContext } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import {
   User,
   Building2,
@@ -14,6 +15,7 @@ import {
   LogOut,
   ChevronRight,
   ShieldCheck,
+  Globe,
 } from 'lucide-react-native';
 
 interface ProfileScreenProps {
@@ -31,11 +33,12 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const { retailer, logout } = useAuthContext();
+  const { setLanguageModalVisible, t } = useLanguage();
 
   const handleLogout = () => {
-    Alert.alert('Confirm Logout', 'Are you sure you want to log out of your NutriFarm account?', [
+    Alert.alert(t('logout'), t('logoutConfirm'), [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Logout', style: 'destructive', onPress: () => logout() },
+      { text: t('logout'), style: 'destructive', onPress: () => logout() },
     ]);
   };
 
@@ -43,14 +46,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
     <View style={styles.container}>
       {/* Top Header with Safe Area Inset */}
       <View style={[styles.topHeader, { paddingTop: Math.max(insets.top, 14) }]}>
-        <Text style={styles.headerTitle}>Account & Profile</Text>
+        <Text style={styles.headerTitle}>{t('profileTitle')}</Text>
       </View>
 
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Profile Card Header */}
         <View style={styles.headerCard}>
           <View style={styles.avatarCircle}>
-            <Building2 size={36} color="#0F5132" />
+            <Building2 size={36} color="#0A5D36" />
           </View>
 
           <Text style={styles.businessTitle}>
@@ -87,6 +90,21 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
         {/* Menu Options */}
         <View style={styles.menuSection}>
+          {/* Language Switcher Item */}
+          <TouchableOpacity
+            style={styles.menuItem}
+            activeOpacity={0.7}
+            onPress={() => setLanguageModalVisible(true)}
+          >
+            <View style={[styles.menuIconBox, { backgroundColor: '#E8F5E9' }]}>
+              <Globe size={20} color="#0A5D36" />
+            </View>
+            <Text style={[styles.menuTitle, { color: '#0A5D36', fontWeight: '800' }]}>
+              {t('languageSettings')}
+            </Text>
+            <ChevronRight size={18} color="#0A5D36" />
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.menuItem} activeOpacity={0.7} onPress={onEditProfile}>
             <View style={styles.menuIconBox}>
               <User size={20} color={colors.primary} />
@@ -99,7 +117,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             <View style={styles.menuIconBox}>
               <Store size={20} color={colors.primary} />
             </View>
-            <Text style={styles.menuTitle}>Manage Shops & Addresses</Text>
+            <Text style={styles.menuTitle}>{t('myShops')}</Text>
             <ChevronRight size={18} color={colors.gray400} />
           </TouchableOpacity>
 
@@ -107,7 +125,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             <View style={styles.menuIconBox}>
               <CalendarRange size={20} color={colors.primary} />
             </View>
-            <Text style={styles.menuTitle}>Expected KG Requirements</Text>
+            <Text style={styles.menuTitle}>{t('expectedRequirements')}</Text>
             <ChevronRight size={18} color={colors.gray400} />
           </TouchableOpacity>
 
@@ -115,19 +133,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             <View style={styles.menuIconBox}>
               <Bell size={20} color={colors.primary} />
             </View>
-            <Text style={styles.menuTitle}>Notifications & Rate Alerts</Text>
-            <ChevronRight size={18} color={colors.gray400} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.menuItem}
-            activeOpacity={0.7}
-            onPress={() => Alert.alert('Wholesale Support', 'Call NutriFarm support at 1800-NUTRIFARM or email support@nutrifarm.com')}
-          >
-            <View style={styles.menuIconBox}>
-              <HelpCircle size={20} color={colors.primary} />
-            </View>
-            <Text style={styles.menuTitle}>Help & Wholesale Support</Text>
+            <Text style={styles.menuTitle}>{t('notifications')}</Text>
             <ChevronRight size={18} color={colors.gray400} />
           </TouchableOpacity>
 
@@ -135,13 +141,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             <View style={[styles.menuIconBox, styles.logoutIconBox]}>
               <LogOut size={20} color={colors.danger} />
             </View>
-            <Text style={[styles.menuTitle, styles.logoutTitle]}>Logout</Text>
+            <Text style={[styles.menuTitle, styles.logoutTitle]}>{t('logout')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

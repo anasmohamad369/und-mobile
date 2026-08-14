@@ -1,122 +1,172 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Card } from '../common/Card';
-import { Badge } from '../common/Badge';
 import { colors } from '../../theme/colors';
 import { Order } from '../../types';
-import { ChevronRight, Truck } from 'lucide-react-native';
+import { ChevronRight, ShoppingBag, Clock, FileText, CheckCircle2, Truck, Hourglass } from 'lucide-react-native';
 
 interface RecentOrderCardProps {
-  order: Order;
-  onViewOrder: (orderId: string) => void;
+  order?: Order;
+  mockData?: {
+    id: string;
+    date: string;
+    deliveryDate: string;
+    kg: string;
+    amount: string;
+    status: 'Delivered' | 'In Transit' | 'Pending';
+  };
+  onViewOrder?: (orderId: string) => void;
 }
 
-export const RecentOrderCard: React.FC<RecentOrderCardProps> = ({ order, onViewOrder }) => {
+export const RecentOrderCard: React.FC<RecentOrderCardProps> = ({ order, mockData, onViewOrder }) => {
+  const id = mockData?.id || order?.id || '#NF10245';
+  const dateStr = mockData?.date || (order ? new Date(order.createdAt).toLocaleString() : '08 Aug 2025, 10:30 AM');
+  const deliveryStr = mockData?.deliveryDate || 'Delivery on 10 Aug 2025';
+  const kgStr = mockData?.kg || `${order?.quantityKg || 200} kg`;
+  const amountStr = mockData?.amount || `₹${(order?.totalAmount || 29000).toLocaleString('en-IN')}.00`;
+  const statusStr = mockData?.status || (order?.status === 'DELIVERED' ? 'Delivered' : (order?.status === 'OUT_FOR_DELIVERY' || order?.status === 'DRIVER_ASSIGNED') ? 'In Transit' : 'Pending');
+
+
+  const getStatusConfig = () => {
+    switch (statusStr) {
+      case 'Delivered':
+        return {
+          icon: <ShoppingBag size={18} color="#16A34A" />,
+          circleBg: '#DCFCE7',
+          statusBg: '#DCFCE7',
+          statusText: '#16A34A',
+          statusIcon: <CheckCircle2 size={12} color="#16A34A" style={{ marginRight: 4 }} />,
+          deliveryTextColor: '#16A34A',
+        };
+      case 'In Transit':
+        return {
+          icon: <Clock size={18} color="#EA580C" />,
+          circleBg: '#FFEDD5',
+          statusBg: '#FFEDD5',
+          statusText: '#EA580C',
+          statusIcon: <Truck size={12} color="#EA580C" style={{ marginRight: 4 }} />,
+          deliveryTextColor: '#EA580C',
+        };
+      default:
+        return {
+          icon: <FileText size={18} color="#2563EB" />,
+          circleBg: '#DBEAFE',
+          statusBg: '#DBEAFE',
+          statusText: '#2563EB',
+          statusIcon: <Hourglass size={12} color="#2563EB" style={{ marginRight: 4 }} />,
+          deliveryTextColor: '#2563EB',
+        };
+    }
+  };
+
+  const config = getStatusConfig();
+
   return (
-    <Card style={styles.card}>
-      <View style={styles.headerRow}>
-        <View style={styles.orderIdBox}>
-          <Truck size={16} color={colors.primary} style={{ marginRight: 6 }} />
-          <Text style={styles.orderIdText}>{order.id}</Text>
-        </View>
-        <Badge status={order.status} />
+    <TouchableOpacity
+      style={styles.cardContainer}
+      activeOpacity={0.8}
+      onPress={() => onViewOrder && onViewOrder(id)}
+    >
+      {/* Icon Circle */}
+      <View style={[styles.iconCircle, { backgroundColor: config.circleBg }]}>
+        {config.icon}
       </View>
 
-      <Text style={styles.shopName} numberOfLines={1}>
-        {order.delivery.shopName}
-      </Text>
-
-      <View style={styles.detailsRow}>
-        <View style={styles.detailCol}>
-          <Text style={styles.detailLabel}>Quantity</Text>
-          <Text style={styles.detailValue}>{order.quantityKg} KG</Text>
-        </View>
-
-        <View style={styles.detailCol}>
-          <Text style={styles.detailLabel}>Rate</Text>
-          <Text style={styles.detailValue}>₹{order.ratePerKg}/KG</Text>
-        </View>
-
-        <View style={styles.detailCol}>
-          <Text style={styles.detailLabel}>Total Amount</Text>
-          <Text style={styles.detailValueHighlight}>₹{order.totalAmount.toLocaleString()}</Text>
-        </View>
+      {/* Main Order Info */}
+      <View style={styles.infoCol}>
+        <Text style={styles.orderIdText}>Order {id}</Text>
+        <Text style={styles.dateText}>📅 {dateStr}</Text>
+        <Text style={[styles.deliveryDateText, { color: config.deliveryTextColor }]}>
+          {deliveryStr}
+        </Text>
       </View>
 
-      <TouchableOpacity
-        style={styles.actionBtn}
-        activeOpacity={0.7}
-        onPress={() => onViewOrder(order.id)}
-      >
-        <Text style={styles.actionBtnText}>View Order Details & Tracking</Text>
-        <ChevronRight size={16} color={colors.primary} />
-      </TouchableOpacity>
-    </Card>
+      {/* Right Metrics & Status Pill */}
+      <View style={styles.rightCol}>
+        <Text style={styles.kgText}>{kgStr}</Text>
+        <Text style={styles.amountText}>{amountStr}</Text>
+        <View style={styles.statusRow}>
+          <View style={[styles.statusPill, { backgroundColor: config.statusBg }]}>
+            {config.statusIcon}
+            <Text style={[styles.statusPillText, { color: config.statusText }]}>{statusStr}</Text>
+          </View>
+          <ChevronRight size={18} color={colors.gray400} style={{ marginLeft: 6 }} />
+        </View>
+      </View>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  card: {
-    marginVertical: 6,
-  },
-  headerRow: {
+  cardContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 12,
+    marginVertical: 5,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
   },
-  orderIdBox: {
-    flexDirection: 'row',
+  iconCircle: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  infoCol: {
+    flex: 1,
   },
   orderIdText: {
     fontSize: 15,
     fontWeight: '800',
     color: colors.gray900,
   },
-  shopName: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.gray600,
-    marginBottom: 12,
-  },
-  detailsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: colors.gray50,
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
-  },
-  detailCol: {
-    alignItems: 'flex-start',
-  },
-  detailLabel: {
+  dateText: {
     fontSize: 11,
     color: colors.gray500,
-    fontWeight: '500',
-  },
-  detailValue: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.gray800,
     marginTop: 2,
   },
-  detailValueHighlight: {
+  deliveryDateText: {
+    fontSize: 11,
+    fontWeight: '700',
+    marginTop: 2,
+  },
+  rightCol: {
+    alignItems: 'flex-end',
+  },
+  kgText: {
     fontSize: 15,
     fontWeight: '800',
-    color: colors.primary,
+    color: colors.gray900,
+  },
+  amountText: {
+    fontSize: 12,
+    color: colors.gray600,
+    fontWeight: '600',
     marginTop: 2,
   },
-  actionBtn: {
+  statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 4,
+    marginTop: 6,
   },
-  actionBtnText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: colors.primary,
+  statusPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+  },
+  statusPillText: {
+    fontSize: 11,
+    fontWeight: '800',
   },
 });
+

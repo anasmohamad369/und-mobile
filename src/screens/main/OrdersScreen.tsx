@@ -12,6 +12,7 @@ import { Card } from '../../components/common/Card';
 import { Badge } from '../../components/common/Badge';
 import { colors } from '../../theme/colors';
 import { useOrders } from '../../hooks/useOrders';
+import { useLanguage } from '../../context/LanguageContext';
 import { Order } from '../../types';
 import { ShoppingBag, ChevronRight, Truck } from 'lucide-react-native';
 
@@ -21,6 +22,7 @@ interface OrdersScreenProps {
 
 export const OrdersScreen: React.FC<OrdersScreenProps> = ({ onSelectOrder }) => {
   const insets = useSafeAreaInsets();
+  const { t } = useLanguage();
   const [filter, setFilter] = useState<'ALL' | 'ACTIVE' | 'COMPLETED'>('ALL');
   const { data: orders, isLoading, refetch } = useOrders(filter);
 
@@ -29,7 +31,7 @@ export const OrdersScreen: React.FC<OrdersScreenProps> = ({ onSelectOrder }) => 
       <Card style={styles.orderCard}>
         <View style={styles.cardHeader}>
           <View style={styles.orderIdContainer}>
-            <Truck size={18} color={colors.primary} style={{ marginRight: 6 }} />
+            <Truck size={18} color="#0A5D36" style={{ marginRight: 6 }} />
             <Text style={styles.orderId}>{item.id}</Text>
           </View>
           <Badge status={item.status} />
@@ -42,17 +44,17 @@ export const OrdersScreen: React.FC<OrdersScreenProps> = ({ onSelectOrder }) => 
 
         <View style={styles.infoRow}>
           <View style={styles.infoCol}>
-            <Text style={styles.infoLabel}>Quantity</Text>
+            <Text style={styles.infoLabel}>{t('quantity')}</Text>
             <Text style={styles.infoVal}>{item.quantityKg} KG</Text>
           </View>
 
           <View style={styles.infoCol}>
-            <Text style={styles.infoLabel}>Rate at Purchase</Text>
+            <Text style={styles.infoLabel}>{t('marketPriceRate')}</Text>
             <Text style={styles.infoVal}>₹{item.ratePerKg}/KG</Text>
           </View>
 
           <View style={styles.infoCol}>
-            <Text style={styles.infoLabel}>Total Paid</Text>
+            <Text style={styles.infoLabel}>{t('finalAmount')}</Text>
             <Text style={styles.totalVal}>₹{item.totalAmount.toLocaleString()}</Text>
           </View>
         </View>
@@ -62,8 +64,8 @@ export const OrdersScreen: React.FC<OrdersScreenProps> = ({ onSelectOrder }) => 
           activeOpacity={0.7}
           onPress={() => onSelectOrder(item.id)}
         >
-          <Text style={styles.viewBtnText}>View Order Details & Tracking</Text>
-          <ChevronRight size={16} color={colors.primary} />
+          <Text style={styles.viewBtnText}>{t('trackOrder')}</Text>
+          <ChevronRight size={16} color="#0A5D36" />
         </TouchableOpacity>
       </Card>
     );
@@ -72,7 +74,7 @@ export const OrdersScreen: React.FC<OrdersScreenProps> = ({ onSelectOrder }) => 
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 14) }]}>
-        <Text style={styles.title}>My Orders</Text>
+        <Text style={styles.title}>{t('myOrdersTitle')}</Text>
 
         {/* Filter Tabs */}
         <View style={styles.tabContainer}>
@@ -83,12 +85,13 @@ export const OrdersScreen: React.FC<OrdersScreenProps> = ({ onSelectOrder }) => 
               onPress={() => setFilter(tab)}
             >
               <Text style={[styles.tabText, filter === tab && styles.activeTabText]}>
-                {tab === 'ALL' ? 'All' : tab === 'ACTIVE' ? 'Active' : 'Completed'}
+                {tab === 'ALL' ? t('viewAll') : tab === 'ACTIVE' ? t('activeOrdersTab') : t('pastOrdersTab')}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
       </View>
+
 
       <FlatList
         data={orders || []}

@@ -6,21 +6,27 @@ import { colors } from '../../theme/colors';
 import { useShopContext } from '../../context/ShopContext';
 import { useCreateOrderMutation } from '../../hooks/useOrders';
 import { Order, PaymentInitiation } from '../../types';
-import { MapPin, Truck, Calendar, CreditCard, ShieldCheck } from 'lucide-react-native';
+import { CircleRate, REGIONAL_CIRCLES } from '../../data/circlesData';
+import { MapPin, Truck, Calendar, CreditCard, ShieldCheck, Tag } from 'lucide-react-native';
+
 
 interface OrderReviewScreenProps {
   quantityKg: number;
   ratePerKg: number;
+  paymentMethod?: 'ONLINE' | 'COD';
   deliveryDate: string;
   deliverySlot?: string;
+  selectedCircle?: CircleRate;
   onProceedToPayment: (order: Order, payment: PaymentInitiation) => void;
 }
 
 export const OrderReviewScreen: React.FC<OrderReviewScreenProps> = ({
   quantityKg,
   ratePerKg,
+  paymentMethod = 'ONLINE',
   deliveryDate,
   deliverySlot = 'Standard Delivery',
+  selectedCircle = REGIONAL_CIRCLES[0],
   onProceedToPayment,
 }) => {
   const { selectedShop } = useShopContext();
@@ -30,6 +36,8 @@ export const OrderReviewScreen: React.FC<OrderReviewScreenProps> = ({
   const subtotal = quantityKg * ratePerKg;
   const deliveryFee = 0;
   const totalAmount = subtotal + deliveryFee;
+  const discountAmount = paymentMethod === 'ONLINE' ? 5 : 0;
+  const totalSaved = quantityKg * discountAmount;
 
   const handleCreateOrder = async () => {
     setErrorMsg('');
@@ -42,7 +50,7 @@ export const OrderReviewScreen: React.FC<OrderReviewScreenProps> = ({
           quantityKg,
           deliveryDate,
           deliverySlot,
-          paymentMethod: 'UPI',
+          paymentMethod: paymentMethod === 'ONLINE' ? 'UPI' : 'BANK_TRANSFER',
         },
         idempotencyKey,
       });
@@ -54,13 +62,13 @@ export const OrderReviewScreen: React.FC<OrderReviewScreenProps> = ({
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.screenTitle}>Review Your Order</Text>
 
       {/* Delivery Address Card */}
       <Card style={styles.reviewCard}>
         <View style={styles.cardHeader}>
-          <MapPin size={20} color={colors.primary} style={{ marginRight: 8 }} />
+          <MapPin size={20} color="#0A5D36" style={{ marginRight: 8 }} />
           <Text style={styles.cardHeaderTitle}>Delivering To</Text>
         </View>
         <Text style={styles.shopTitle}>{selectedShop?.name || 'NutriFarm - Bopal'}</Text>
@@ -72,8 +80,8 @@ export const OrderReviewScreen: React.FC<OrderReviewScreenProps> = ({
       {/* Item & Rate Details */}
       <Card style={styles.reviewCard}>
         <View style={styles.cardHeader}>
-          <Truck size={20} color={colors.primary} style={{ marginRight: 8 }} />
-          <Text style={styles.cardHeaderTitle}>Wholesale Chicken Supply</Text>
+          <Truck size={20} color="#0A5D36" style={{ marginRight: 8 }} />
+          <Text style={styles.cardHeaderTitle}>Supply & Market Circle Rate</Text>
         </View>
 
         <View style={styles.row}>
@@ -82,20 +90,39 @@ export const OrderReviewScreen: React.FC<OrderReviewScreenProps> = ({
         </View>
 
         <View style={styles.row}>
+          <Text style={styles.label}>Market Circle</Text>
+          <Text style={styles.valBold}>{selectedCircle.name}</Text>
+        </View>
+
+        <View style={styles.row}>
           <Text style={styles.label}>Quantity</Text>
           <Text style={styles.valBold}>{quantityKg} KG</Text>
         </View>
 
         <View style={styles.row}>
-          <Text style={styles.label}>Wholesale Rate</Text>
-          <Text style={styles.valBold}>₹{ratePerKg} / KG</Text>
+          <Text style={styles.label}>Base Market Rate</Text>
+          <Text style={styles.valBold}>₹{selectedCircle.marketPrice}.00 / KG</Text>
         </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Payment Method</Text>
+          <Text style={styles.valHighlight}>
+            {paymentMethod === 'ONLINE' ? 'Online Payment (Prepaid)' : 'Cash on Delivery (COD)'}
+          </Text>
+        </View>
+
+        {paymentMethod === 'ONLINE' && (
+          <View style={styles.discountRow}>
+            <Tag size={14} color="#16A34A" style={{ marginRight: 6 }} />
+            <Text style={styles.discountText}>Applied flat ₹5.00/kg instant discount!</Text>
+          </View>
+        )}
       </Card>
 
       {/* Delivery Window */}
       <Card style={styles.reviewCard}>
         <View style={styles.cardHeader}>
-          <Calendar size={20} color={colors.primary} style={{ marginRight: 8 }} />
+          <Calendar size={20} color="#0A5D36" style={{ marginRight: 8 }} />
           <Text style={styles.cardHeaderTitle}>Scheduled Delivery</Text>
         </View>
 
@@ -108,13 +135,18 @@ export const OrderReviewScreen: React.FC<OrderReviewScreenProps> = ({
       {/* Final Price Breakdown */}
       <Card style={styles.reviewCard}>
         <View style={styles.cardHeader}>
-          <CreditCard size={20} color={colors.primary} style={{ marginRight: 8 }} />
+          <CreditCard size={20} color="#0A5D36" style={{ marginRight: 8 }} />
           <Text style={styles.cardHeaderTitle}>Payment Breakdown</Text>
         </View>
 
         <View style={styles.row}>
+          <Text style={styles.label}>Rate Applied</Text>
+          <Text style={styles.valBold}>₹{ratePerKg}.00 / KG</Text>
+        </View>
+
+        <View style={styles.row}>
           <Text style={styles.label}>Subtotal ({quantityKg} KG × ₹{ratePerKg})</Text>
-          <Text style={styles.val}>₹{subtotal.toLocaleString()}</Text>
+          <Text style={styles.val}>₹{subtotal.toLocaleString('en-IN')}.00</Text>
         </View>
 
         <View style={styles.row}>
@@ -122,11 +154,19 @@ export const OrderReviewScreen: React.FC<OrderReviewScreenProps> = ({
           <Text style={[styles.val, { color: colors.success }]}>₹0 (FREE)</Text>
         </View>
 
+        {paymentMethod === 'ONLINE' && totalSaved > 0 && (
+          <View style={styles.totalSavingsBox}>
+            <Text style={styles.totalSavingsText}>
+              Total Savings: ₹{totalSaved.toLocaleString('en-IN')}.00
+            </Text>
+          </View>
+        )}
+
         <View style={styles.divider} />
 
         <View style={styles.row}>
-          <Text style={styles.totalLabel}>Total Payable</Text>
-          <Text style={styles.totalVal}>₹{totalAmount.toLocaleString()}</Text>
+          <Text style={styles.totalLabel}>Total Payable Amount</Text>
+          <Text style={styles.totalVal}>₹{totalAmount.toLocaleString('en-IN')}.00</Text>
         </View>
       </Card>
 
@@ -140,7 +180,7 @@ export const OrderReviewScreen: React.FC<OrderReviewScreenProps> = ({
       </View>
 
       <Button
-        title="Proceed to Payment"
+        title={paymentMethod === 'ONLINE' ? 'Pay Now & Complete Order' : 'Confirm Cash on Delivery Order'}
         variant="primary"
         size="lg"
         loading={createOrderMutation.isPending}
@@ -150,6 +190,7 @@ export const OrderReviewScreen: React.FC<OrderReviewScreenProps> = ({
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -208,6 +249,38 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.gray900,
   },
+  valHighlight: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#FF5500',
+  },
+  discountRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#DCFCE7',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    marginTop: 6,
+  },
+  discountText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#16A34A',
+  },
+  totalSavingsBox: {
+    backgroundColor: '#DCFCE7',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    marginTop: 6,
+    alignItems: 'center',
+  },
+  totalSavingsText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#16A34A',
+  },
   divider: {
     height: 1,
     backgroundColor: colors.gray200,
@@ -219,9 +292,9 @@ const styles = StyleSheet.create({
     color: colors.gray900,
   },
   totalVal: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '900',
-    color: colors.primary,
+    color: '#FF5500',
   },
   errorText: {
     color: colors.danger,
@@ -243,5 +316,7 @@ const styles = StyleSheet.create({
   },
   payBtn: {
     marginBottom: 20,
+    backgroundColor: '#FF5500',
   },
 });
+

@@ -1,22 +1,29 @@
 export const colors = {
   // Brand Primary & Accent Palette
-  primary: '#E11D48',       // Vibrant Rose/Red for Poultry B2B Brand
-  primaryDark: '#BE123C',
-  primaryLight: '#FFE4E6',
+  primary: '#FF5500',       // Vibrant Orange as shown in NutriFarm design
+  primaryDark: '#E04800',
+  primaryLight: '#FFF0EA',
   
   // Secondary Colors
-  secondary: '#0F172A',     // Slate Deep Dark
-  accent: '#F59E0B',        // Amber Gold for Rate Badges & Highlights
+  secondary: '#0A5D36',     // Dark Green for Live Rate Card Header
+  secondaryLight: '#E8F5E9',
+  accent: '#F59E0B',        // Amber Gold
   accentLight: '#FEF3C7',
   
+  // Custom Card Colors
+  cardPeach: '#FFF7F3',     // Peach background for Special Price card
+  cardPeachBorder: '#FFDDD0',
+  ribbonRed: '#D32F2F',      // Red for special price ribbon banner
+  darkGreenText: '#0A5D36',
+  
   // Status Colors
-  success: '#10B981',       // Emerald Green
-  successLight: '#D1FAE5',
-  warning: '#F59E0B',       // Amber
-  warningLight: '#FEF3C7',
-  danger: '#EF4444',        // Red Error
+  success: '#16A34A',       // Green for Delivered status
+  successLight: '#DCFCE7',
+  warning: '#EA580C',       // Orange for In Transit status
+  warningLight: '#FFEDD5',
+  danger: '#EF4444',        // Red
   dangerLight: '#FEE2E2',
-  info: '#3B82F6',          // Sky Blue
+  info: '#2563EB',          // Blue for Pending status
   infoLight: '#DBEAFE',
 
   // Backgrounds & Surface
@@ -43,3 +50,4 @@ export const colors = {
   gray800: '#1E293B',
   gray900: '#0F172A',
 };
+

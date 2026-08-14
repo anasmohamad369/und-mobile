@@ -1,19 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
 import { Header } from '../../components/common/Header';
 import { LiveRateCard } from '../../components/home/LiveRateCard';
-import { StockCard } from '../../components/home/StockCard';
+import { SpecialPriceCard } from '../../components/home/SpecialPriceCard';
 import { RecentOrderCard } from '../../components/home/RecentOrderCard';
 import { ShopSelectorModal } from '../../components/home/ShopSelectorModal';
-import { Card } from '../../components/common/Card';
+import { CircleRateModal } from '../../components/home/CircleRateModal';
+import { REGIONAL_CIRCLES, CircleRate } from '../../data/circlesData';
 import { colors } from '../../theme/colors';
 import { useLiveRate } from '../../hooks/useLiveRate';
 import { useInventory } from '../../hooks/useInventory';
 import { useOrders } from '../../hooks/useOrders';
-import { useRequirements } from '../../hooks/useRequirements';
 import { useShopContext } from '../../context/ShopContext';
-import { useNotificationContext } from '../../context/NotificationContext';
-import { CalendarRange, ChevronRight, Zap } from 'lucide-react-native';
+import { useLanguage } from '../../context/LanguageContext';
+import { ArrowRight } from 'lucide-react-native';
 
 interface HomeScreenProps {
   onNavigateToBuy: () => void;
@@ -29,126 +29,121 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onNavigateToBuy,
   onNavigateToOrders,
   onNavigateToOrderTracking,
-  onNavigateToRequirements,
-  onNavigateToAddRequirement,
   onNavigateToAddShop,
   onNavigateToNotifications,
 }) => {
-  const { data: rate, refetch: refetchRate, isLoading: isRateLoading } = useLiveRate();
-  const { data: inventory, refetch: refetchInventory } = useInventory();
+  const { refetch: refetchRate, isLoading: isRateLoading } = useLiveRate();
+  const { refetch: refetchInventory } = useInventory();
   const { data: orders, refetch: refetchOrders } = useOrders('ACTIVE');
-  const { data: requirements } = useRequirements();
   const { isSelectorModalVisible, setSelectorModalVisible } = useShopContext();
-  const { triggerMockRateUpdate } = useNotificationContext();
+  const { t } = useLanguage();
 
-  const activeOrder = orders && orders.length > 0 ? orders[0] : null;
-  const activeRequirement = requirements && requirements.length > 0 ? requirements[0] : null;
+
+  // Circle / Area rate state
+  const [selectedCircle, setSelectedCircle] = useState<CircleRate>(REGIONAL_CIRCLES[0]);
+  const [isCircleModalVisible, setIsCircleModalVisible] = useState(false);
 
   const onRefresh = async () => {
     await Promise.all([refetchRate(), refetchInventory(), refetchOrders()]);
   };
 
-  const handleSimulateRateChange = () => {
-    const current = rate?.ratePerKg || 102;
-    const nextRate = current === 102 ? 105 : current === 105 ? 99 : 102;
-    triggerMockRateUpdate(nextRate);
-  };
+  const sampleRecentOrders = [
+    {
+      id: '#NF10245',
+      date: '08 Aug 2025, 10:30 AM',
+      deliveryDate: 'Delivery on 10 Aug 2025',
+      kg: '200 kg',
+      amount: '₹29,000.00',
+      status: 'Delivered' as const,
+    },
+    {
+      id: '#NF10246',
+      date: '08 Aug 2025, 09:15 AM',
+      deliveryDate: 'Delivery on 11 Aug 2025',
+      kg: '150 kg',
+      amount: '₹21,750.00',
+      status: 'In Transit' as const,
+    },
+    {
+      id: '#NF10247',
+      date: '07 Aug 2025, 06:45 PM',
+      deliveryDate: 'Delivery on 09 Aug 2025',
+      kg: '300 kg',
+      amount: '₹43,500.00',
+      status: 'Pending' as const,
+    },
+  ];
 
   return (
     <View style={styles.container}>
       <Header
         onNotificationPress={onNavigateToNotifications}
         unreadNotifications={true}
+        selectedCircleName={selectedCircle.name}
+        onOpenCircleModal={() => setIsCircleModalVisible(true)}
       />
 
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         refreshControl={<RefreshControl refreshing={isRateLoading} onRefresh={onRefresh} />}
+        showsVerticalScrollIndicator={false}
       >
-        {/* Real-time Rate Simulation Bar */}
-        <TouchableOpacity
-          style={styles.simBar}
-          activeOpacity={0.8}
-          onPress={handleSimulateRateChange}
-        >
-          <Zap size={14} color={colors.accent} style={{ marginRight: 6 }} />
-          <Text style={styles.simBarText}>
-            Simulate Rate Fluctuation (Tap to test WebSocket update: ₹{rate?.ratePerKg || 102}/KG)
-          </Text>
-        </TouchableOpacity>
+        {/* Today's Live Market Price Card */}
+        <LiveRateCard
+          selectedCircle={selectedCircle}
+          onOpenCircleModal={() => setIsCircleModalVisible(true)}
+          onBuyPress={onNavigateToBuy}
+        />
 
-        {/* Live Chicken Rate Card */}
-        <LiveRateCard rate={rate || null} onBuyPress={onNavigateToBuy} />
+        {/* NutriFarm Special Price (After Discount) Banner Card */}
+        <SpecialPriceCard
+          marketPrice={selectedCircle.marketPrice}
+          specialPrice={selectedCircle.specialPrice}
+          discountAmount={selectedCircle.discount}
+          onBuyNow={onNavigateToBuy}
+        />
 
-        {/* Stock Availability */}
-        <StockCard availableKg={inventory?.availableKg || 4250} />
-
-        {/* Expected Requirement Section */}
+        {/* Recent Orders Section */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Expected Requirement</Text>
-          <TouchableOpacity onPress={onNavigateToRequirements} activeOpacity={0.7}>
-            <Text style={styles.seeAllText}>View All</Text>
-          </TouchableOpacity>
-        </View>
-
-        {activeRequirement ? (
-          <Card style={styles.reqCard}>
-            <View style={styles.reqHeader}>
-              <View style={styles.reqIconBox}>
-                <CalendarRange size={20} color={colors.primary} />
-              </View>
-              <View style={styles.reqInfo}>
-                <Text style={styles.reqShopName}>{activeRequirement.shopName}</Text>
-                <Text style={styles.reqDateText}>
-                  {activeRequirement.fromDate} - {activeRequirement.toDate}
-                </Text>
-              </View>
-              <View style={styles.reqKgPill}>
-                <Text style={styles.reqKgText}>{activeRequirement.expectedKg.toLocaleString()} KG</Text>
-              </View>
+          <Text style={styles.sectionTitle}>{t('recentOrders')}</Text>
+          <TouchableOpacity
+            style={styles.viewAllBtn}
+            onPress={onNavigateToOrders}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.viewAllText}>{t('viewAll')}</Text>
+            <View style={styles.viewAllArrowCircle}>
+              <ArrowRight size={12} color="#0A5D36" />
             </View>
-
-            <TouchableOpacity
-              style={styles.reqAction}
-              activeOpacity={0.7}
-              onPress={onNavigateToRequirements}
-            >
-              <Text style={styles.reqActionText}>
-                Estimated Remaining: {activeRequirement.remainingKg || 350} KG
-              </Text>
-              <ChevronRight size={16} color={colors.primary} />
-            </TouchableOpacity>
-          </Card>
-        ) : (
-          <Card style={styles.emptyReqCard}>
-            <Text style={styles.emptyReqTitle}>No Expected Requirements Set</Text>
-            <Text style={styles.emptyReqSub}>Tell us your expected future KG demand for better farm supply.</Text>
-            <TouchableOpacity style={styles.addReqBtn} onPress={onNavigateToAddRequirement}>
-              <Text style={styles.addReqBtnText}>+ Add Expected Requirement</Text>
-            </TouchableOpacity>
-          </Card>
-        )}
-
-        {/* Recent Active Order Section */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Recent Order</Text>
-          <TouchableOpacity onPress={onNavigateToOrders} activeOpacity={0.7}>
-            <Text style={styles.seeAllText}>All Orders</Text>
           </TouchableOpacity>
         </View>
 
-        {activeOrder ? (
-          <RecentOrderCard order={activeOrder} onViewOrder={onNavigateToOrderTracking} />
-        ) : (
-          <Card style={styles.emptyOrderCard}>
-            <Text style={styles.emptyOrderText}>No active orders right now.</Text>
-            <TouchableOpacity style={styles.buyNowSmallBtn} onPress={onNavigateToBuy}>
-              <Text style={styles.buyNowSmallText}>Place New Purchase Order</Text>
-            </TouchableOpacity>
-          </Card>
+
+        {/* Orders List */}
+        {sampleRecentOrders.map((item) => (
+          <RecentOrderCard
+            key={item.id}
+            mockData={item}
+            onViewOrder={onNavigateToOrderTracking}
+          />
+        ))}
+
+        {orders && orders.length > 0 && orders[0] && (
+          <RecentOrderCard
+            order={orders[0]}
+            onViewOrder={onNavigateToOrderTracking}
+          />
         )}
       </ScrollView>
+
+      {/* Circle / Area Selector Modal */}
+      <CircleRateModal
+        visible={isCircleModalVisible}
+        selectedCircle={selectedCircle}
+        onSelectCircle={(circle) => setSelectedCircle(circle)}
+        onClose={() => setIsCircleModalVisible(false)}
+      />
 
       {/* Shop Selector Modal */}
       <ShopSelectorModal
@@ -160,152 +155,51 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   );
 };
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#FAFAFA',
   },
   scroll: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: 16,
-    paddingBottom: 30,
-  },
-  simBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#1E293B',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 10,
-    marginTop: 10,
-    marginBottom: 4,
-  },
-  simBarText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: colors.gray300,
+    paddingTop: 8,
+    paddingBottom: 100,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 18,
-    marginBottom: 8,
-    paddingHorizontal: 4,
+    marginTop: 16,
+    marginBottom: 10,
+    paddingHorizontal: 2,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: '900',
     color: colors.gray900,
   },
-  seeAllText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  reqCard: {
-    padding: 14,
-    marginVertical: 4,
-  },
-  reqHeader: {
+  viewAllBtn: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  reqIconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.primaryLight,
+  viewAllText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#0A5D36',
+    marginRight: 4,
+  },
+  viewAllArrowCircle: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 1.5,
+    borderColor: '#0A5D36',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
-  },
-  reqInfo: {
-    flex: 1,
-  },
-  reqShopName: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: colors.gray900,
-  },
-  reqDateText: {
-    fontSize: 12,
-    color: colors.gray500,
-    marginTop: 2,
-  },
-  reqKgPill: {
-    backgroundColor: colors.accentLight,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 12,
-  },
-  reqKgText: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#B45309',
-  },
-  reqAction: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 12,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: colors.gray200,
-  },
-  reqActionText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.gray700,
-  },
-  emptyReqCard: {
-    padding: 16,
-    alignItems: 'center',
-  },
-  emptyReqTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: colors.gray800,
-  },
-  emptyReqSub: {
-    fontSize: 12,
-    color: colors.gray500,
-    textAlign: 'center',
-    marginTop: 4,
-    marginBottom: 12,
-  },
-  addReqBtn: {
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-    backgroundColor: colors.primaryLight,
-  },
-  addReqBtnText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: colors.primaryDark,
-  },
-  emptyOrderCard: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  emptyOrderText: {
-    fontSize: 14,
-    color: colors.gray500,
-  },
-  buyNowSmallBtn: {
-    marginTop: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-  },
-  buyNowSmallText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: colors.textWhite,
   },
 });
+

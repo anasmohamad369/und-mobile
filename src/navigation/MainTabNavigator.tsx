@@ -5,10 +5,13 @@ import { HomeScreen } from '../screens/main/HomeScreen';
 import { OrdersScreen } from '../screens/main/OrdersScreen';
 import { ShopsScreen } from '../screens/main/ShopsScreen';
 import { ProfileScreen } from '../screens/main/ProfileScreen';
-import { colors } from '../theme/colors';
-import { Home, ShoppingBag, Store, User } from 'lucide-react-native';
+import { HelpCentreScreen } from '../screens/main/HelpCentreScreen';
+import { useLanguage } from '../context/LanguageContext';
 
-export type MainTabType = 'HOME' | 'ORDERS' | 'SHOPS' | 'PROFILE';
+import { colors } from '../theme/colors';
+import { Home, FileText, ShoppingCart, Headset, User } from 'lucide-react-native';
+
+export type MainTabType = 'HOME' | 'ORDERS' | 'SHOPS' | 'HELP' | 'PROFILE';
 
 interface MainTabNavigatorProps {
   currentTab: MainTabType;
@@ -34,7 +37,11 @@ export const MainTabNavigator: React.FC<MainTabNavigatorProps> = ({
   onNavigateToEditProfile,
 }) => {
   const insets = useSafeAreaInsets();
-  const bottomPadding = Math.max(insets.bottom, 12);
+  const { t } = useLanguage();
+  const bottomPadding = Math.max(insets.bottom, 10);
+
+  const activeColor = '#FF5500';
+  const inactiveColor = '#64748B';
 
   return (
     <View style={styles.container}>
@@ -54,6 +61,8 @@ export const MainTabNavigator: React.FC<MainTabNavigatorProps> = ({
           <OrdersScreen onSelectOrder={onNavigateToOrderTracking} />
         )}
         {currentTab === 'SHOPS' && <ShopsScreen onAddShop={onNavigateToAddShop} />}
+        {currentTab === 'HELP' && <HelpCentreScreen />}
+
         {currentTab === 'PROFILE' && (
           <ProfileScreen
             onEditProfile={onNavigateToEditProfile}
@@ -61,72 +70,81 @@ export const MainTabNavigator: React.FC<MainTabNavigatorProps> = ({
             onViewRequirements={onNavigateToRequirements}
             onViewNotifications={onNavigateToNotifications}
           />
+
         )}
       </View>
 
-      {/* Seamless Edge-to-Edge Bottom Navigation Bar */}
-      <View style={[styles.bottomBar, { paddingBottom: bottomPadding }]}>
+      {/* Modern Curved Floating Bottom Navigation Bar */}
+      <View style={[styles.bottomBarContainer, { paddingBottom: bottomPadding }]}>
+        {/* Tab 1: Home */}
         <TouchableOpacity
           style={styles.tabItem}
           activeOpacity={0.8}
           onPress={() => onTabChange('HOME')}
         >
-          <View style={[styles.iconWrapper, currentTab === 'HOME' && styles.activeIconWrapper]}>
-            <Home
-              size={22}
-              color={currentTab === 'HOME' ? colors.primary : '#64748B'}
-            />
-          </View>
+          <Home
+            size={24}
+            color={currentTab === 'HOME' ? activeColor : inactiveColor}
+          />
           <Text style={[styles.tabLabel, currentTab === 'HOME' && styles.activeTabLabel]}>
-            Home
+            {t('home')}
           </Text>
         </TouchableOpacity>
 
+        {/* Tab 2: Orders */}
         <TouchableOpacity
           style={styles.tabItem}
           activeOpacity={0.8}
           onPress={() => onTabChange('ORDERS')}
         >
-          <View style={[styles.iconWrapper, currentTab === 'ORDERS' && styles.activeIconWrapper]}>
-            <ShoppingBag
-              size={22}
-              color={currentTab === 'ORDERS' ? colors.primary : '#64748B'}
-            />
-          </View>
+          <FileText
+            size={24}
+            color={currentTab === 'ORDERS' ? activeColor : inactiveColor}
+          />
           <Text style={[styles.tabLabel, currentTab === 'ORDERS' && styles.activeTabLabel]}>
-            Orders
+            {t('orders')}
           </Text>
         </TouchableOpacity>
 
+        {/* Central Floating Buy Now Button */}
+        <View style={styles.centerButtonWrapper}>
+          <TouchableOpacity
+            style={styles.floatingBuyBtn}
+            activeOpacity={0.88}
+            onPress={onNavigateToBuy}
+          >
+            <ShoppingCart size={24} color="#FFFFFF" />
+            <Text style={styles.floatingBuyBtnText}>{t('buyNow')}</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Tab 3: Help Centre */}
         <TouchableOpacity
           style={styles.tabItem}
           activeOpacity={0.8}
-          onPress={() => onTabChange('SHOPS')}
+          onPress={() => onTabChange('HELP')}
         >
-          <View style={[styles.iconWrapper, currentTab === 'SHOPS' && styles.activeIconWrapper]}>
-            <Store
-              size={22}
-              color={currentTab === 'SHOPS' ? colors.primary : '#64748B'}
-            />
-          </View>
-          <Text style={[styles.tabLabel, currentTab === 'SHOPS' && styles.activeTabLabel]}>
-            Shops
+          <Headset
+            size={24}
+            color={currentTab === 'HELP' ? activeColor : inactiveColor}
+          />
+          <Text style={[styles.tabLabel, currentTab === 'HELP' && styles.activeTabLabel]}>
+            {t('helpCentre')}
           </Text>
         </TouchableOpacity>
 
+        {/* Tab 4: Profile */}
         <TouchableOpacity
           style={styles.tabItem}
           activeOpacity={0.8}
           onPress={() => onTabChange('PROFILE')}
         >
-          <View style={[styles.iconWrapper, currentTab === 'PROFILE' && styles.activeIconWrapper]}>
-            <User
-              size={22}
-              color={currentTab === 'PROFILE' ? colors.primary : '#64748B'}
-            />
-          </View>
+          <User
+            size={24}
+            color={currentTab === 'PROFILE' ? activeColor : inactiveColor}
+          />
           <Text style={[styles.tabLabel, currentTab === 'PROFILE' && styles.activeTabLabel]}>
-            Profile
+            {t('profile')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -137,37 +155,35 @@ export const MainTabNavigator: React.FC<MainTabNavigatorProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#FAFAFA',
   },
   content: {
     flex: 1,
   },
-  bottomBar: {
+  bottomBarContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     paddingTop: 10,
-    backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.gray200,
-    elevation: 8,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    elevation: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
   },
   tabItem: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  iconWrapper: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 2,
-    paddingHorizontal: 12,
-    borderRadius: 16,
-  },
-  activeIconWrapper: {
-    backgroundColor: colors.primaryLight,
+    paddingVertical: 4,
   },
   tabLabel: {
     fontSize: 11,
@@ -176,7 +192,35 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   activeTabLabel: {
-    color: colors.primary,
+    color: '#FF5500',
     fontWeight: '800',
   },
+  centerButtonWrapper: {
+    flex: 1.2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: -30,
+  },
+  floatingBuyBtn: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#FF5500',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#FF5500',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 8,
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
+  },
+  floatingBuyBtnText: {
+    color: '#FFFFFF',
+    fontSize: 9,
+    fontWeight: '900',
+    marginTop: 1,
+  },
 });
+

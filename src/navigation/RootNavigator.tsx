@@ -4,12 +4,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthContext } from '../context/AuthContext';
 import { useNotificationContext } from '../context/NotificationContext';
 import { useShopContext } from '../context/ShopContext';
+import { useLanguage } from '../context/LanguageContext';
+import { LanguageModal } from '../components/common/LanguageModal';
 import { AuthNavigator } from './AuthNavigator';
 import { MainTabNavigator, MainTabType } from './MainTabNavigator';
-import { BuyChickenScreen } from '../screens/purchase/BuyChickenScreen';
-import { DeliverySelectionScreen } from '../screens/purchase/DeliverySelectionScreen';
-import { OrderReviewScreen } from '../screens/purchase/OrderReviewScreen';
-import { PaymentScreen } from '../screens/purchase/PaymentScreen';
+import { Step1QuantityScreen } from '../screens/purchase/Step1QuantityScreen';
+import { Step2DeliveryDateScreen } from '../screens/purchase/Step2DeliveryDateScreen';
+import { Step3OrderSummaryScreen } from '../screens/purchase/Step3OrderSummaryScreen';
+import { Step4PaymentOptionScreen } from '../screens/purchase/Step4PaymentOptionScreen';
+import { Step5ConfirmOrderScreen } from '../screens/purchase/Step5ConfirmOrderScreen';
 import { OrderConfirmationScreen } from '../screens/purchase/OrderConfirmationScreen';
 import { OrderTrackingScreen } from '../screens/orders/OrderTrackingScreen';
 import { AddRequirementScreen } from '../screens/requirements/AddRequirementScreen';
@@ -17,19 +20,20 @@ import { RequirementsListScreen } from '../screens/requirements/RequirementsList
 import { AddShopScreen } from '../screens/shops/AddShopScreen';
 import { EditProfileScreen } from '../screens/profile/EditProfileScreen';
 import { NotificationsScreen } from '../screens/profile/NotificationsScreen';
-import { ShopSelectorModal } from '../components/home/ShopSelectorModal';
 import { OfflineBanner } from '../components/common/OfflineBanner';
 import { colors } from '../theme/colors';
-import { Order, PaymentInitiation } from '../types';
-import { ArrowLeft, Bell, AlertTriangle } from 'lucide-react-native';
+import { Order } from '../types';
+import { ArrowLeft, AlertTriangle } from 'lucide-react-native';
+import { REGIONAL_CIRCLES, CircleRate } from '../data/circlesData';
 
 type ScreenState =
   | { name: 'TABS' }
-  | { name: 'BUY_CHICKEN' }
-  | { name: 'DELIVERY_SELECTION'; quantityKg: number; ratePerKg: number }
-  | { name: 'ORDER_REVIEW'; quantityKg: number; ratePerKg: number; deliveryDate: string; deliverySlot: string }
-  | { name: 'PAYMENT'; order: Order; payment: PaymentInitiation }
-  | { name: 'ORDER_CONFIRMATION'; order: Order }
+  | { name: 'STEP_1_QUANTITY'; selectedCircle: CircleRate; quantityKg?: number }
+  | { name: 'STEP_2_DATE'; selectedCircle: CircleRate; quantityKg: number; deliveryDate?: string }
+  | { name: 'STEP_3_SUMMARY'; selectedCircle: CircleRate; quantityKg: number; deliveryDate: string }
+  | { name: 'STEP_4_PAYMENT'; selectedCircle: CircleRate; quantityKg: number; deliveryDate: string; paymentOption?: 'ONLINE' | 'COD' }
+  | { name: 'STEP_5_CONFIRM'; selectedCircle: CircleRate; quantityKg: number; deliveryDate: string; paymentOption: 'ONLINE' | 'COD' }
+  | { name: 'ORDER_CONFIRMATION'; orderData: { id: string; quantityKg: number; finalAmount: number; deliveryDate: string; paymentMethod: string } }
   | { name: 'ORDER_TRACKING'; orderId: string }
   | { name: 'ADD_REQUIREMENT' }
   | { name: 'REQUIREMENTS_LIST' }
@@ -42,8 +46,11 @@ export const RootNavigator: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuthContext();
   const { toast, hideToast } = useNotificationContext();
   const { setSelectorModalVisible } = useShopContext();
+  const { isLanguageModalVisible, setLanguageModalVisible } = useLanguage();
+
 
   const [currentTab, setCurrentTab] = useState<MainTabType>('HOME');
+  const [selectedCircle, setSelectedCircle] = useState<CircleRate>(REGIONAL_CIRCLES[0]);
   const [screen, setScreen] = useState<ScreenState>({ name: 'TABS' });
 
   if (isLoading) {
@@ -60,6 +67,19 @@ export const RootNavigator: React.FC = () => {
 
   const handleBackToTabs = () => setScreen({ name: 'TABS' });
 
+  const renderStepHeader = (stepNum: number, onBack: () => void) => (
+    <View style={[styles.stepHeaderBar, { paddingTop: Math.max(insets.top, 12) }]}>
+      <TouchableOpacity style={styles.stepBackBtn} activeOpacity={0.7} onPress={onBack}>
+        <ArrowLeft size={20} color={colors.gray900} />
+      </TouchableOpacity>
+      <View style={styles.stepTitleContainer}>
+        <Text style={styles.stepTitle}>Buy Now</Text>
+        <Text style={styles.stepSubtitle}>Step {stepNum} of 5</Text>
+      </View>
+      <View style={{ width: 36 }} />
+    </View>
+  );
+
   const renderHeaderBar = (title: string, onBack: () => void) => (
     <View style={[styles.headerBar, { paddingTop: Math.max(insets.top, 14) }]}>
       <TouchableOpacity style={styles.backBtn} activeOpacity={0.7} onPress={onBack}>
@@ -72,7 +92,6 @@ export const RootNavigator: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* Toast Alert Notification Banner */}
       {toast && (
         <TouchableOpacity style={styles.toastBanner} activeOpacity={0.9} onPress={hideToast}>
           <AlertTriangle size={18} color={colors.accent} style={{ marginRight: 10 }} />
@@ -89,7 +108,7 @@ export const RootNavigator: React.FC = () => {
         <MainTabNavigator
           currentTab={currentTab}
           onTabChange={setCurrentTab}
-          onNavigateToBuy={() => setScreen({ name: 'BUY_CHICKEN' })}
+          onNavigateToBuy={() => setScreen({ name: 'STEP_1_QUANTITY', selectedCircle, quantityKg: 100 })}
           onNavigateToOrderTracking={(orderId) => setScreen({ name: 'ORDER_TRACKING', orderId })}
           onNavigateToRequirements={() => setScreen({ name: 'REQUIREMENTS_LIST' })}
           onNavigateToAddRequirement={() => setScreen({ name: 'ADD_REQUIREMENT' })}
@@ -99,80 +118,134 @@ export const RootNavigator: React.FC = () => {
         />
       )}
 
-      {screen.name === 'BUY_CHICKEN' && (
+      {/* STEP 1 OF 5: Enter Quantity */}
+      {screen.name === 'STEP_1_QUANTITY' && (
         <View style={{ flex: 1 }}>
-          {renderHeaderBar('Buy Chicken', handleBackToTabs)}
-          <BuyChickenScreen
-            onContinueToDelivery={(quantityKg, ratePerKg) =>
-              setScreen({ name: 'DELIVERY_SELECTION', quantityKg, ratePerKg })
+          {renderStepHeader(1, handleBackToTabs)}
+          <Step1QuantityScreen
+            selectedCircle={screen.selectedCircle}
+            initialQuantity={screen.quantityKg || 100}
+            onContinue={(quantityKg) =>
+              setScreen({
+                name: 'STEP_2_DATE',
+                selectedCircle: screen.selectedCircle,
+                quantityKg,
+              })
             }
           />
         </View>
       )}
 
-      {screen.name === 'DELIVERY_SELECTION' && (
+      {/* STEP 2 OF 5: Select Delivery Date */}
+      {screen.name === 'STEP_2_DATE' && (
         <View style={{ flex: 1 }}>
-          {renderHeaderBar('Delivery Details', () => setScreen({ name: 'BUY_CHICKEN' }))}
-          <DeliverySelectionScreen
-            quantityKg={screen.quantityKg}
-            ratePerKg={screen.ratePerKg}
-            onChangeShop={() => setSelectorModalVisible(true)}
-            onProceedToReview={(deliveryDate, deliverySlot) =>
+          {renderStepHeader(2, () => setScreen({ name: 'STEP_1_QUANTITY', selectedCircle: screen.selectedCircle, quantityKg: screen.quantityKg }))}
+          <Step2DeliveryDateScreen
+            initialDate={screen.deliveryDate || '10 Aug 2025 (Sunday)'}
+            onContinue={(deliveryDate) =>
               setScreen({
-                name: 'ORDER_REVIEW',
+                name: 'STEP_3_SUMMARY',
+                selectedCircle: screen.selectedCircle,
                 quantityKg: screen.quantityKg,
-                ratePerKg: screen.ratePerKg,
                 deliveryDate,
-                deliverySlot,
               })
             }
           />
         </View>
       )}
 
-      {screen.name === 'ORDER_REVIEW' && (
+      {/* STEP 3 OF 5: Order Summary */}
+      {screen.name === 'STEP_3_SUMMARY' && (
         <View style={{ flex: 1 }}>
-          {renderHeaderBar(
-            'Review Order',
-            () =>
-              setScreen({
-                name: 'DELIVERY_SELECTION',
-                quantityKg: screen.quantityKg,
-                ratePerKg: screen.ratePerKg,
-              })
-          )}
-          <OrderReviewScreen
+          {renderStepHeader(3, () => setScreen({ name: 'STEP_2_DATE', selectedCircle: screen.selectedCircle, quantityKg: screen.quantityKg, deliveryDate: screen.deliveryDate }))}
+          <Step3OrderSummaryScreen
             quantityKg={screen.quantityKg}
-            ratePerKg={screen.ratePerKg}
             deliveryDate={screen.deliveryDate}
-            deliverySlot={screen.deliverySlot}
-            onProceedToPayment={(order, payment) => setScreen({ name: 'PAYMENT', order, payment })}
-          />
-        </View>
-      )}
-
-      {screen.name === 'PAYMENT' && (
-        <View style={{ flex: 1 }}>
-          {renderHeaderBar('Payment Gateway', () => setScreen({ name: 'BUY_CHICKEN' }))}
-          <PaymentScreen
-            order={screen.order}
-            payment={screen.payment}
-            onPaymentSuccess={(confirmedOrder) =>
-              setScreen({ name: 'ORDER_CONFIRMATION', order: confirmedOrder })
+            selectedCircle={screen.selectedCircle}
+            onChangeCircle={() => setScreen({ name: 'TABS' })}
+            onContinue={() =>
+              setScreen({
+                name: 'STEP_4_PAYMENT',
+                selectedCircle: screen.selectedCircle,
+                quantityKg: screen.quantityKg,
+                deliveryDate: screen.deliveryDate,
+              })
             }
           />
         </View>
       )}
 
+      {/* STEP 4 OF 5: Choose Payment Option */}
+      {screen.name === 'STEP_4_PAYMENT' && (
+        <View style={{ flex: 1 }}>
+          {renderStepHeader(4, () => setScreen({ name: 'STEP_3_SUMMARY', selectedCircle: screen.selectedCircle, quantityKg: screen.quantityKg, deliveryDate: screen.deliveryDate }))}
+          <Step4PaymentOptionScreen
+            quantityKg={screen.quantityKg}
+            initialOption={screen.paymentOption || 'ONLINE'}
+            onContinue={(paymentOption) =>
+              setScreen({
+                name: 'STEP_5_CONFIRM',
+                selectedCircle: screen.selectedCircle,
+                quantityKg: screen.quantityKg,
+                deliveryDate: screen.deliveryDate,
+                paymentOption,
+              })
+            }
+          />
+        </View>
+      )}
+
+      {/* STEP 5 OF 5: Confirm Your Order */}
+      {screen.name === 'STEP_5_CONFIRM' && (
+        <View style={{ flex: 1 }}>
+          {renderStepHeader(5, () => setScreen({ name: 'STEP_4_PAYMENT', selectedCircle: screen.selectedCircle, quantityKg: screen.quantityKg, deliveryDate: screen.deliveryDate, paymentOption: screen.paymentOption }))}
+          <Step5ConfirmOrderScreen
+            quantityKg={screen.quantityKg}
+            deliveryDate={screen.deliveryDate}
+            paymentOption={screen.paymentOption}
+            selectedCircle={screen.selectedCircle}
+            onPlaceOrder={() => {
+              const marketRate = screen.selectedCircle.marketPrice;
+              const discount = screen.paymentOption === 'ONLINE' ? 5 : 0;
+              const finalAmount = screen.quantityKg * (marketRate - discount);
+              const orderId = `NF${Math.floor(10000 + Math.random() * 90000)}`;
+
+              setScreen({
+                name: 'ORDER_CONFIRMATION',
+                orderData: {
+                  id: orderId,
+                  quantityKg: screen.quantityKg,
+                  finalAmount,
+                  deliveryDate: screen.deliveryDate,
+                  paymentMethod: screen.paymentOption === 'ONLINE' ? 'Pay Online' : 'Cash on Delivery',
+                },
+              });
+            }}
+          />
+        </View>
+      )}
+
+      {/* STEP 6: Order Placed Successfully! */}
       {screen.name === 'ORDER_CONFIRMATION' && (
         <View style={{ flex: 1 }}>
+          {renderHeaderBar('Order Placed', handleBackToTabs)}
           <OrderConfirmationScreen
-            order={screen.order}
+            mockData={{
+              orderNumber: `#${screen.orderData.id}`,
+              orderDateTime: '08 Aug 2025, 11:30 AM',
+              deliveryDate: screen.orderData.deliveryDate,
+              quantity: `${screen.orderData.quantityKg} Kg`,
+              finalAmount: `₹${screen.orderData.finalAmount.toLocaleString('en-IN')}.00`,
+              paymentMethod: screen.orderData.paymentMethod,
+            }}
             onTrackOrder={(orderId) => setScreen({ name: 'ORDER_TRACKING', orderId })}
             onReturnHome={handleBackToTabs}
           />
         </View>
       )}
+
+
+
 
       {screen.name === 'ORDER_TRACKING' && (
         <View style={{ flex: 1 }}>
@@ -215,9 +288,16 @@ export const RootNavigator: React.FC = () => {
           <NotificationsScreen />
         </View>
       )}
+
+      {/* Language Switcher Modal */}
+      <LanguageModal
+        visible={isLanguageModalVisible}
+        onClose={() => setLanguageModalVisible(false)}
+      />
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -245,6 +325,38 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.gray200,
   },
+  stepHeaderBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 16,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  stepBackBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F1F5F9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepTitleContainer: {
+    alignItems: 'center',
+  },
+  stepTitle: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: colors.gray900,
+  },
+  stepSubtitle: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: colors.gray500,
+    marginTop: 1,
+  },
   backBtn: {
     width: 36,
     height: 36,
@@ -253,6 +365,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+
   headerTitle: {
     fontSize: 17,
     fontWeight: '800',

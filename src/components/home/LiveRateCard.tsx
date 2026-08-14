@@ -1,179 +1,210 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Card } from '../common/Card';
-import { Button } from '../common/Button';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { colors } from '../../theme/colors';
-import { LiveRate } from '../../types';
-import { TrendingUp, TrendingDown, ShoppingBag } from 'lucide-react-native';
+import { CircleRate } from '../../data/circlesData';
+import { useLanguage } from '../../context/LanguageContext';
+import { TrendingUp, RefreshCw, ChevronRight, ChevronDown } from 'lucide-react-native';
 
 interface LiveRateCardProps {
-  rate: LiveRate | null;
+  selectedCircle: CircleRate;
+  onOpenCircleModal: () => void;
   onBuyPress: () => void;
 }
 
-export const LiveRateCard: React.FC<LiveRateCardProps> = ({ rate, onBuyPress }) => {
-  const currentRate = rate ? rate.ratePerKg : 102;
-  const previousRate = rate?.previousRatePerKg;
-  const isUp = previousRate ? currentRate > previousRate : false;
-  const isDown = previousRate ? currentRate < previousRate : false;
+export const LiveRateCard: React.FC<LiveRateCardProps> = ({
+  selectedCircle,
+  onOpenCircleModal,
+  onBuyPress,
+}) => {
+  const { t } = useLanguage();
 
   return (
-    <Card style={styles.cardContainer}>
+    <View style={styles.cardContainer}>
+      {/* Top Header Bar in Dark Green */}
       <View style={styles.topHeader}>
-        <View style={styles.liveBadge}>
-          <View style={styles.liveDot} />
-          <Text style={styles.liveBadgeText}>LIVE RATE</Text>
-        </View>
-        <Text style={styles.updatedText}>
-          Updated {rate?.updatedAt || 'Just now'}
-        </Text>
-      </View>
-
-      <View style={styles.rateRow}>
-        <View style={styles.rateContainer}>
-          <Text style={styles.currencySymbol}>₹</Text>
-          <Text style={styles.rateValue}>{currentRate}</Text>
-          <Text style={styles.perKgUnit}> / KG</Text>
-        </View>
-
-        {previousRate && (isUp || isDown) && (
-          <View
-            style={[
-              styles.changeBadge,
-              isUp ? styles.changeUp : styles.changeDown,
-            ]}
-          >
-            {isUp ? (
-              <TrendingUp size={16} color={colors.danger} />
-            ) : (
-              <TrendingDown size={16} color={colors.success} />
-            )}
-            <Text
-              style={[
-                styles.changeText,
-                { color: isUp ? colors.danger : colors.success },
-              ]}
-            >
-              {isUp ? `+₹${currentRate - previousRate}` : `-₹${previousRate - currentRate}`}
-            </Text>
+        <View style={styles.headerLeft}>
+          <View style={styles.iconCircle}>
+            <TrendingUp size={16} color={colors.secondary} />
           </View>
-        )}
+          <Text style={styles.headerTitle}>{t('liveMarketPriceTitle')}</Text>
+        </View>
+
+        <View style={styles.headerRight}>
+          <Text style={styles.updatedText}>{t('lastUpdated')} {selectedCircle.lastUpdated}</Text>
+          <RefreshCw size={14} color="#FFFFFF" style={{ marginLeft: 6 }} />
+        </View>
       </View>
 
-      <Text style={styles.farmSubtext}>
-        {rate?.farmName || 'Gujarat Wholesale Supply Network'}
-      </Text>
+      {/* Main Card Body */}
+      <View style={styles.cardBody}>
+        <View style={styles.rowContent}>
+          {/* Left Column: Area / Circle */}
+          <View style={styles.areaCol}>
+            <Text style={styles.fieldLabel}>{t('areaCircle')}</Text>
+            <TouchableOpacity style={styles.circleDropdown} activeOpacity={0.7} onPress={onOpenCircleModal}>
+              <Text style={styles.circleText} numberOfLines={1}>
+                {selectedCircle.name}
+              </Text>
+              <ChevronDown size={18} color={colors.gray800} style={{ marginLeft: 4 }} />
+            </TouchableOpacity>
+          </View>
 
-      <Button
-        title="BUY CHICKEN"
-        variant="primary"
-        size="lg"
-        icon={<ShoppingBag size={20} color={colors.textWhite} />}
-        onPress={onBuyPress}
-        style={styles.buyButton}
-      />
-    </Card>
+          {/* Vertical Divider */}
+          <View style={styles.divider} />
+
+          {/* Right Column: Market Price */}
+          <View style={styles.priceCol}>
+            <Text style={styles.fieldLabel}>{t('marketPrice')}</Text>
+            <View style={styles.priceRow}>
+              <Text style={styles.priceSymbol}>₹</Text>
+              <Text style={styles.priceValue}>{selectedCircle.marketPrice}.00</Text>
+              <Text style={styles.priceUnit}> /kg</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Bottom Link: View price in other areas */}
+        <TouchableOpacity style={styles.bottomLink} activeOpacity={0.7} onPress={onOpenCircleModal}>
+          <Text style={styles.bottomLinkText}>{t('viewPriceInOtherAreas')}</Text>
+          <View style={styles.arrowCircle}>
+            <ChevronRight size={14} color="#0A5D36" />
+          </View>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
+
+
 const styles = StyleSheet.create({
   cardContainer: {
-    backgroundColor: '#0F172A',
-    borderRadius: 20,
-    padding: 20,
-    marginVertical: 10,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 16,
-    elevation: 8,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    marginVertical: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
   },
   topHeader: {
+    backgroundColor: '#0A5D36',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
-  liveBadge: {
+  headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(225, 29, 72, 0.2)',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(225, 29, 72, 0.4)',
   },
-  liveDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.primary,
-    marginRight: 6,
+  iconCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
   },
-  liveBadgeText: {
-    color: '#FF6B81',
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 0.8,
+  headerTitle: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   updatedText: {
-    color: colors.gray400,
+    color: '#E2E8F0',
     fontSize: 12,
     fontWeight: '500',
   },
-  rateRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    marginVertical: 4,
+  cardBody: {
+    padding: 16,
   },
-  rateContainer: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-  },
-  currencySymbol: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: colors.textWhite,
-  },
-  rateValue: {
-    fontSize: 44,
-    fontWeight: '900',
-    color: colors.textWhite,
-    letterSpacing: -1,
-  },
-  perKgUnit: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.gray400,
-    marginLeft: 4,
-  },
-  changeBadge: {
+  rowContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 8,
+    justifyContent: 'space-between',
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
   },
-  changeUp: {
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+  areaCol: {
+    flex: 1,
   },
-  changeDown: {
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-  },
-  changeText: {
+  fieldLabel: {
     fontSize: 13,
+    fontWeight: '600',
+    color: colors.gray500,
+    marginBottom: 4,
+  },
+  circleDropdown: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  circleText: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: colors.gray900,
+  },
+  divider: {
+    width: 1,
+    height: 40,
+    backgroundColor: '#E2E8F0',
+    marginHorizontal: 16,
+  },
+  priceCol: {
+    flex: 1,
+  },
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  priceSymbol: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: colors.gray900,
+  },
+  priceValue: {
+    fontSize: 32,
+    fontWeight: '900',
+    color: '#0A5D36',
+    marginLeft: 2,
+  },
+  priceUnit: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.gray500,
+    marginLeft: 2,
+  },
+  bottomLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+  },
+  bottomLinkText: {
+    fontSize: 14,
     fontWeight: '700',
-    marginLeft: 4,
+    color: '#0A5D36',
+    marginRight: 6,
   },
-  farmSubtext: {
-    color: colors.gray400,
-    fontSize: 13,
-    marginTop: 2,
-    marginBottom: 18,
-  },
-  buyButton: {
-    backgroundColor: colors.primary,
+  arrowCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#0A5D36',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
+
