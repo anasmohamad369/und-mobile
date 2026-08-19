@@ -9,6 +9,8 @@ interface ShopContextType {
   isLoading: boolean;
   selectShop: (shopId: number) => void;
   addNewShop: (data: Omit<Shop, 'id' | 'retailerId' | 'status'>) => Promise<Shop | null>;
+  updateShop: (shopId: number, data: Partial<Shop>) => Promise<Shop | null>;
+  deleteShop: (shopId: number) => Promise<boolean>;
   refetchShops: () => Promise<void>;
   isSelectorModalVisible: boolean;
   setSelectorModalVisible: (visible: boolean) => void;
@@ -73,6 +75,45 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateShop = async (shopId: number, data: Partial<Shop>): Promise<Shop | null> => {
+    try {
+      setIsLoading(true);
+      const res = await shopsApi.updateShop(shopId, data);
+      if (res.success && res.data) {
+        setShops(prev => prev.map(s => s.id === shopId ? res.data : s));
+        if (selectedShop?.id === shopId) {
+          setSelectedShop(res.data);
+        }
+        return res.data;
+      }
+      return null;
+    } catch (e) {
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const deleteShop = async (shopId: number): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+      const res = await shopsApi.deleteShop(shopId);
+      if (res.success) {
+        const remaining = shops.filter(s => s.id !== shopId);
+        setShops(remaining);
+        if (selectedShop?.id === shopId) {
+          setSelectedShop(remaining[0] || null);
+        }
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <ShopContext.Provider
       value={{
@@ -81,6 +122,8 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         selectShop,
         addNewShop,
+        updateShop,
+        deleteShop,
         refetchShops: fetchShops,
         isSelectorModalVisible,
         setSelectorModalVisible,

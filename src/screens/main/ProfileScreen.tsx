@@ -53,11 +53,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         {/* Profile Card Header */}
         <View style={styles.headerCard}>
           <View style={styles.avatarCircle}>
-            <Building2 size={36} color="#0A5D36" />
+            <Building2 size={36} color={colors.primary} />
           </View>
 
           <Text style={styles.businessTitle}>
-            {retailer?.businessName || 'NutriFarm Chicken Traders'}
+            {retailer?.businessName || 'Raj Chicken'}
           </Text>
           <Text style={styles.ownerName}>
             Owner: {retailer?.ownerName || 'Mohammed'}
@@ -96,13 +96,13 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             activeOpacity={0.7}
             onPress={() => setLanguageModalVisible(true)}
           >
-            <View style={[styles.menuIconBox, { backgroundColor: '#E8F5E9' }]}>
-              <Globe size={20} color="#0A5D36" />
+            <View style={styles.menuIconBox}>
+              <Globe size={20} color={colors.primary} />
             </View>
-            <Text style={[styles.menuTitle, { color: '#0A5D36', fontWeight: '800' }]}>
+            <Text style={styles.menuTitle}>
               {t('languageSettings')}
             </Text>
-            <ChevronRight size={18} color="#0A5D36" />
+            <ChevronRight size={18} color={colors.gray400} />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.menuItem} activeOpacity={0.7} onPress={onEditProfile}>
@@ -121,13 +121,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             <ChevronRight size={18} color={colors.gray400} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem} activeOpacity={0.7} onPress={onViewRequirements}>
-            <View style={styles.menuIconBox}>
-              <CalendarRange size={20} color={colors.primary} />
-            </View>
-            <Text style={styles.menuTitle}>{t('expectedRequirements')}</Text>
-            <ChevronRight size={18} color={colors.gray400} />
-          </TouchableOpacity>
 
           <TouchableOpacity style={styles.menuItem} activeOpacity={0.7} onPress={onViewNotifications}>
             <View style={styles.menuIconBox}>
@@ -193,9 +186,9 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: '#F0FDF4',
+    backgroundColor: colors.primaryLight,
     borderWidth: 2,
-    borderColor: '#86EFAC',
+    borderColor: '#FFD6C6',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,

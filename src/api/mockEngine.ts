@@ -164,16 +164,43 @@ class MockBackendEngine {
       address: shopData.address,
       addressLine2: shopData.addressLine2,
       city: shopData.city,
-      state: shopData.state || 'Gujarat',
+      state: shopData.state || 'Andhra Pradesh',
       pincode: shopData.pincode,
-      latitude: shopData.latitude,
-      longitude: shopData.longitude,
+      latitude: shopData.latitude || 16.9891,
+      longitude: shopData.longitude || 81.7838,
       status: 'ACTIVE',
       isDefault: this.shops.length === 0,
     };
 
     this.shops.push(newShop);
     return { success: true, data: newShop };
+  }
+
+  public async updateShop(shopId: number, shopData: Partial<Shop>): Promise<ApiResponse<Shop>> {
+    await this.delay(400);
+    const index = this.shops.findIndex(s => s.id === shopId);
+    if (index === -1) {
+      return { success: false, data: null as any, error: 'Shop not found' };
+    }
+
+    const updatedShop: Shop = {
+      ...this.shops[index],
+      ...shopData,
+    };
+
+    this.shops[index] = updatedShop;
+    return { success: true, data: updatedShop };
+  }
+
+  public async deleteShop(shopId: number): Promise<ApiResponse<{ deleted: boolean }>> {
+    await this.delay(400);
+    const index = this.shops.findIndex(s => s.id === shopId);
+    if (index === -1) {
+      return { success: false, data: { deleted: false }, error: 'Shop not found' };
+    }
+
+    this.shops.splice(index, 1);
+    return { success: true, data: { deleted: true } };
   }
 
   // --- Rates & Inventory APIs ---

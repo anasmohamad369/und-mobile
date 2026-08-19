@@ -151,8 +151,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   circleText: {
-    fontSize: 18,
-    fontWeight: '800',
+    fontSize: 14,
+    fontWeight: '600',
     color: colors.gray900,
   },
   divider: {
@@ -174,8 +174,8 @@ const styles = StyleSheet.create({
     color: colors.gray900,
   },
   priceValue: {
-    fontSize: 32,
-    fontWeight: '900',
+    fontSize: 24,
+    fontWeight: '700',
     color: '#0A5D36',
     marginLeft: 2,
   },

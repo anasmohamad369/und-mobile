@@ -209,8 +209,8 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   strikethroughPrice: {
-    fontSize: 13,
-    fontWeight: '800',
+    fontSize: 20,
+    fontWeight: '700',
     color: colors.gray900,
     textDecorationLine: 'line-through',
   },
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     textDecorationLine: 'none',
   },
   savePrice: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '900',
     color: '#16A34A',
   },
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     color: '#E64A19',
   },
   finalPrice: {
-    fontSize: 13,
+    fontSize: 16,
     fontWeight: '900',
     color: '#FF4D00',
   },
@@ -313,6 +313,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     marginTop: 10,
+    backgroundColor: 'rgba(211, 47, 47, 0.08)',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    overflow: 'hidden',
   },
 });
 

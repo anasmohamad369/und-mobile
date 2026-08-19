@@ -76,19 +76,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
   return (
     <View style={styles.container}>
-      <Header
-        onNotificationPress={onNavigateToNotifications}
-        unreadNotifications={true}
-        selectedCircleName={selectedCircle.name}
-        onOpenCircleModal={() => setIsCircleModalVisible(true)}
-      />
-
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         refreshControl={<RefreshControl refreshing={isRateLoading} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
       >
+        <Header
+          onNotificationPress={onNavigateToNotifications}
+          unreadNotifications={true}
+          selectedCircleName={selectedCircle.name}
+          onOpenCircleModal={() => setIsCircleModalVisible(true)}
+        />
+
         {/* Today's Live Market Price Card */}
         <LiveRateCard
           selectedCircle={selectedCircle}
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingTop: 0,
     paddingBottom: 85,
   },
   sectionHeader: {

@@ -53,10 +53,10 @@ export const HelpCentreScreen: React.FC = () => {
         </TouchableOpacity>
 
         {/* Support Timing Banner */}
-        <View style={styles.timingCard}>
+        {/* <View style={styles.timingCard}>
           <Clock size={18} color="#0A5D36" style={{ marginRight: 10 }} />
           <Text style={styles.timingText}>{t('supportTiming')}</Text>
-        </View>
+        </View> */}
 
         {/* FAQ Section */}
         <Text style={styles.sectionTitle}>{t('faqTitle')}</Text>

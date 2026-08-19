@@ -4,8 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthContext } from '../../context/AuthContext';
 import { useShopContext } from '../../context/ShopContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { colors } from '../../theme/colors';
-import { MapPin, ChevronDown, Bell, Globe } from 'lucide-react-native';
+import { ChevronDown, Bell } from 'lucide-react-native';
 
 interface HeaderProps {
   onNotificationPress?: () => void;
@@ -17,13 +16,10 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   onNotificationPress,
   unreadNotifications = true,
-  selectedCircleName,
-  onOpenCircleModal,
 }) => {
   const insets = useSafeAreaInsets();
   const { retailer } = useAuthContext();
-  const { selectedShop, setSelectorModalVisible } = useShopContext();
-  const { language, setLanguageModalVisible, t } = useLanguage();
+  const { t } = useLanguage();
 
   const getGreetingKey = (): 'goodMorning' | 'goodAfternoon' | 'goodEvening' => {
     const hour = new Date().getHours();
@@ -32,101 +28,98 @@ export const Header: React.FC<HeaderProps> = ({
     return 'goodEvening';
   };
 
-  const handleLocationPress = () => {
-    if (onOpenCircleModal) {
-      onOpenCircleModal();
-    } else {
-      setSelectorModalVisible(true);
-    }
-  };
-
   return (
     <View style={[styles.container, { paddingTop: Math.max(insets.top, 10) }]}>
-      {/* Top Header Row with Transparent Logo, Language Selector, and User Profile */}
+      {/* Top Bar with NutriFarm Brand Logo, Notification Bell, and User Profile Avatar */}
       <View style={styles.topBar}>
-        <Image
-          source={require('../../../assets/logo.png')}
-          style={styles.logoImage}
-          resizeMode="contain"
-        />
+        {/* NutriFarm Brand Logo matching reference design */}
+        <View style={styles.logoWrapper}>
+          <View style={styles.logoTitleRow}>
+            <Text style={styles.logoNutri}>Nutri</Text>
+            <Text style={styles.logoFarm}>Farm</Text>
+          </View>
+          <View style={styles.logoChickenRow}>
+            <View style={styles.logoLine} />
+            <Text style={styles.logoChickenText}>CHICKEN</Text>
+            <View style={styles.logoLine} />
+          </View>
+          <View style={styles.logoTaglineRow}>
+            <Text style={styles.logoLeaf}>🍃</Text>
+            <Text style={styles.logoTaglineText}>A Fresh & Healthy Chicken</Text>
+            <Text style={styles.logoLeaf}>🍃</Text>
+          </View>
+        </View>
 
         <View style={styles.topRightActions}>
-          {/* Language Switcher Pill */}
+          {/* Notification Bell Button with Red Badge */}
           <TouchableOpacity
-            style={styles.langPill}
-            activeOpacity={0.8}
-            onPress={() => setLanguageModalVisible(true)}
+            style={styles.bellButton}
+            onPress={onNotificationPress}
+            activeOpacity={0.7}
           >
-            <Globe size={14} color="#0A5D36" style={{ marginRight: 4 }} />
-            <Text style={styles.langPillText}>
-              {language === 'te' ? 'తెలుగు' : 'EN'}
-            </Text>
-            <ChevronDown size={14} color={colors.gray700} style={{ marginLeft: 2 }} />
+            <Bell size={20} color="#1E293B" />
+            {unreadNotifications && (
+              <View style={styles.badgeCount}>
+                <Text style={styles.badgeCountText}>3</Text>
+              </View>
+            )}
           </TouchableOpacity>
 
-          {onNotificationPress && (
-            <TouchableOpacity style={styles.bellButton} onPress={onNotificationPress} activeOpacity={0.7}>
-              <Bell size={18} color={colors.gray800} />
-              {unreadNotifications && (
-                <View style={styles.badgeCount}>
-                  <Text style={styles.badgeCountText}>3</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          )}
-
-          {/* User Profile Avatar with Dropdown */}
+          {/* Circular User Profile Avatar with Dropdown Arrow */}
           <TouchableOpacity style={styles.profileWrapper} activeOpacity={0.8}>
             <Image
               source={require('../../../assets/avatar-raj.png')}
               style={styles.avatarImage}
             />
+            <ChevronDown size={14} color="#334155" style={styles.profileChevron} />
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Greeting and Hero Illustration Section */}
+      {/* Hero Section with Greeting Text & Farm Hen Background Image */}
       <View style={styles.heroSection}>
+        {/* Right-aligned Farm Hen Landscape Image with smooth fade into background */}
+        <View style={styles.farmImageWrapper}>
+          <Image
+            source={require('../../../assets/hero-farm-chicken.png')}
+            style={styles.farmHenImage}
+            resizeMode="cover"
+          />
+
+          {/* Smooth multi-stop gradient mask for seamless left edge fade */}
+          <View style={styles.fadeContainer}>
+            <View style={[styles.fadeSlice, { opacity: 1.0 }]} />
+            <View style={[styles.fadeSlice, { opacity: 0.85 }]} />
+            <View style={[styles.fadeSlice, { opacity: 0.65 }]} />
+            <View style={[styles.fadeSlice, { opacity: 0.45 }]} />
+            <View style={[styles.fadeSlice, { opacity: 0.25 }]} />
+            <View style={[styles.fadeSlice, { opacity: 0.1 }]} />
+          </View>
+        </View>
+
+        {/* Left Hero Text Content */}
         <View style={styles.greetingContent}>
+          {/* Greeting Title with Waving Hand Emoji */}
           <Text style={styles.greetingTitle}>
             {t(getGreetingKey())}, {retailer?.ownerName || 'Raj'}! 👋
           </Text>
-          <Text style={styles.businessSubtitle}>
+
+          {/* Business / Shop Name Subtitle */}
+          {/* <Text style={styles.businessSubtitle}>
             {retailer?.businessName || 'Raj Chicken Center'}
-          </Text>
-
-          {/* Location Selector */}
-          <TouchableOpacity
-            style={styles.locationSelector}
-            activeOpacity={0.8}
-            onPress={handleLocationPress}
-          >
-            <MapPin size={16} color={colors.secondary} style={{ marginRight: 4 }} />
-            <Text style={styles.locationText} numberOfLines={1}>
-              {selectedCircleName || (selectedShop ? selectedShop.name : 'Gokavaram Circle')}
-            </Text>
-            <ChevronDown size={16} color={colors.gray700} style={{ marginLeft: 2 }} />
-          </TouchableOpacity>
+          </Text> */}
         </View>
-
-        {/* Hero Farm Chicken Illustration */}
-        <Image
-          source={require('../../../assets/hero-farm-chicken.png')}
-          style={styles.heroImage}
-          resizeMode="cover"
-        />
       </View>
     </View>
   );
 };
 
-
-
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FFF9F4', // Warm cream background spanning edge-to-edge
+    marginHorizontal: -16,
     paddingHorizontal: 16,
-    paddingBottom: 8,
+    paddingBottom: 6,
   },
   topBar: {
     flexDirection: 'row',
@@ -134,49 +127,82 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 8,
   },
-  logoImage: {
-    width: 155,
-    height: 48,
+  logoWrapper: {
+    justifyContent: 'center',
+  },
+  logoTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  logoNutri: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#FF5500',
+    letterSpacing: -0.5,
+  },
+  logoFarm: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#0A5D36',
+    letterSpacing: -0.5,
+  },
+  logoChickenRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: -2,
+  },
+  logoLine: {
+    flex: 1,
+    height: 1.5,
+    backgroundColor: '#0A5D36',
+    marginHorizontal: 2,
+  },
+  logoChickenText: {
+    fontSize: 9,
+    fontWeight: '900',
+    color: '#0A5D36',
+    letterSpacing: 2.5,
+  },
+  logoTaglineRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 1,
+  },
+  logoLeaf: {
+    fontSize: 8,
+    marginHorizontal: 1,
+  },
+  logoTaglineText: {
+    fontSize: 8,
+    fontWeight: '700',
+    color: '#0A5D36',
   },
   topRightActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-  },
-  langPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#E8F5E9',
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#C8E6C9',
-  },
-  langPillText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#0A5D36',
+    gap: 10,
   },
   bellButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.gray100,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#F3E8E0',
     alignItems: 'center',
     justifyContent: 'center',
   },
-
   badgeCount: {
     position: 'absolute',
-    top: 4,
-    right: 4,
-    width: 16,
+    top: 2,
+    right: 2,
+    minWidth: 16,
     height: 16,
     borderRadius: 8,
     backgroundColor: '#DC2626',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 3,
   },
   badgeCountText: {
     color: '#FFFFFF',
@@ -194,45 +220,53 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#E2E8F0',
   },
+  profileChevron: {
+    marginLeft: 3,
+  },
   heroSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: 85,
     position: 'relative',
+    height: 95,
+    justifyContent: 'center',
     marginTop: 4,
   },
-  greetingContent: {
+  farmImageWrapper: {
+    position: 'absolute',
+    right: -16,
+    top: 0,
+    bottom: 0,
+    width: '65%',
+  },
+  farmHenImage: {
+    width: '100%',
+    height: '100%',
+  },
+  fadeContainer: {
+    flexDirection: 'row',
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 75,
+  },
+  fadeSlice: {
     flex: 1,
-    paddingRight: 8,
+    backgroundColor: '#FFF9F4',
+  },
+  greetingContent: {
     zIndex: 2,
+    maxWidth: '55%',
   },
   greetingTitle: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: colors.gray900,
-    letterSpacing: -0.3,
+    fontSize: 21,
+    fontWeight: '600',
+    color: '#0F172A',
+    letterSpacing: -0.4,
   },
   businessSubtitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: colors.gray600,
-    marginTop: 2,
-  },
-  locationSelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  locationText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.gray800,
-  },
-  heroImage: {
-    width: 140,
-    height: 90,
-    borderRadius: 12,
+    color: '#475569',
+    marginTop: 3,
   },
 });
 

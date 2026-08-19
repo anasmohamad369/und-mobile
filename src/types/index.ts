@@ -29,6 +29,7 @@ export interface Shop {
   pincode: string;
   latitude?: number;
   longitude?: number;
+  photoUrl?: string;
   status: 'ACTIVE' | 'INACTIVE';
   isDefault?: boolean;
 }

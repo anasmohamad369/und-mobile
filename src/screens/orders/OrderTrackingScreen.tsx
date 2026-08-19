@@ -6,7 +6,7 @@ import { OrderTimeline } from '../../components/orders/OrderTimeline';
 import { DriverCard } from '../../components/orders/DriverCard';
 import { colors } from '../../theme/colors';
 import { useSingleOrder } from '../../hooks/useOrders';
-import { MapPin, Phone, ShieldCheck, RefreshCw } from 'lucide-react-native';
+import { MapPin, ShieldCheck, RefreshCw, Sparkles, Tag, TrendingDown } from 'lucide-react-native';
 
 interface OrderTrackingScreenProps {
   orderId: string;
@@ -24,13 +24,22 @@ export const OrderTrackingScreen: React.FC<OrderTrackingScreenProps> = ({ orderI
     );
   }
 
+  // Calculate pricing breakdown & NutriFarm ₹5/kg savings
+  const discountPerKg = 5;
+  const quantityKg = order.quantityKg || 250;
+  const effectiveRate = order.ratePerKg || 145;
+  const marketRate = effectiveRate + discountPerKg; // e.g. 145 + 5 = 150
+  const originalMarketTotal = quantityKg * marketRate; // e.g. 250 * 150 = 37,500
+  const totalSaved = quantityKg * discountPerKg; // e.g. 250 * 5 = 1,250
+  const totalPaid = order.totalAmount || (quantityKg * effectiveRate); // e.g. 36,250
+
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.content}
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} />}
     >
-      {/* Top Order Badge Header */}
+      {/* Top Order Overview Card */}
       <Card style={styles.headerCard}>
         <View style={styles.topRow}>
           <Text style={styles.orderIdTitle}>Order #{order.id}</Text>
@@ -40,18 +49,78 @@ export const OrderTrackingScreen: React.FC<OrderTrackingScreenProps> = ({ orderI
         <View style={styles.orderStatsGrid}>
           <View style={styles.statCol}>
             <Text style={styles.statLabel}>Quantity</Text>
-            <Text style={styles.statVal}>{order.quantityKg} KG</Text>
+            <Text style={styles.statVal}>{quantityKg} KG</Text>
           </View>
 
           <View style={styles.statCol}>
             <Text style={styles.statLabel}>Rate</Text>
-            <Text style={styles.statVal}>₹{order.ratePerKg}/KG</Text>
+            <Text style={styles.statVal}>₹{effectiveRate}/KG</Text>
+          </View>
+
+          <View style={styles.statCol}>
+            <Text style={styles.statLabel}>Total Saved</Text>
+            <Text style={styles.savedHighlight}>₹{totalSaved.toLocaleString()}</Text>
           </View>
 
           <View style={styles.statCol}>
             <Text style={styles.statLabel}>Total Paid</Text>
-            <Text style={styles.totalHighlight}>₹{order.totalAmount.toLocaleString()}</Text>
+            <Text style={styles.totalHighlight}>₹{totalPaid.toLocaleString()}</Text>
           </View>
+        </View>
+      </Card>
+
+      {/* Savings & Price Breakdown Card (Curiosity & Profit Booster) */}
+      <Card style={styles.savingsCard}>
+        {/* Savings Header Banner */}
+        <View style={styles.savingsHeaderBanner}>
+          <View style={styles.savingsHeaderLeft}>
+            <Sparkles size={18} color="#0A5D36" style={{ marginRight: 6 }} />
+            <Text style={styles.savingsHeaderText}>
+              You Saved ₹{totalSaved.toLocaleString()} on this Order! 🎉
+            </Text>
+          </View>
+          <View style={styles.savingsBadge}>
+            <Text style={styles.savingsBadgeText}>₹{discountPerKg}/kg OFF</Text>
+          </View>
+        </View>
+
+        {/* Detailed Price Breakdown */}
+        <View style={styles.priceBreakdownContainer}>
+          <View style={styles.priceRow}>
+            <Text style={styles.priceRowLabel}>Total Order Quantity</Text>
+            <Text style={styles.priceRowValue}>{quantityKg} KG</Text>
+          </View>
+
+          <View style={styles.priceRow}>
+            <Text style={styles.priceRowLabel}>Market Price (₹{marketRate}/kg)</Text>
+            <Text style={styles.marketPriceStrike}>₹{originalMarketTotal.toLocaleString()}.00</Text>
+          </View>
+
+          <View style={styles.priceRow}>
+            <View style={styles.discountLabelRow}>
+              <Tag size={14} color="#16A34A" style={{ marginRight: 5 }} />
+              <Text style={styles.discountRowLabel}>NutriFarm Offer Discount (₹{discountPerKg}/kg)</Text>
+            </View>
+            <Text style={styles.discountRowValue}>- ₹{totalSaved.toLocaleString()}.00</Text>
+          </View>
+
+          <View style={styles.dividerLine} />
+
+          <View style={styles.priceRowTotal}>
+            <View>
+              <Text style={styles.totalPaidLabel}>Total Amount Paid</Text>
+              <Text style={styles.totalPaidSubtext}>Effective Price: ₹{effectiveRate}/kg</Text>
+            </View>
+            <Text style={styles.totalPaidValue}>₹{totalPaid.toLocaleString()}.00</Text>
+          </View>
+        </View>
+
+        {/* Curiosity & Savings Reengagement Banner */}
+        <View style={styles.curiosityBox}>
+          <TrendingDown size={16} color="#0A5D36" style={{ marginRight: 6 }} />
+          <Text style={styles.curiosityText}>
+            Great deal! You saved ₹{totalSaved.toLocaleString()} on this order.
+          </Text>
         </View>
       </Card>
 
@@ -141,11 +210,136 @@ const styles = StyleSheet.create({
     color: colors.gray800,
     marginTop: 2,
   },
-  totalHighlight: {
-    fontSize: 15,
+  savedHighlight: {
+    fontSize: 14,
     fontWeight: '800',
+    color: '#16A34A',
+    marginTop: 2,
+  },
+  totalHighlight: {
+    fontSize: 14,
+    fontWeight: '900',
     color: colors.primary,
     marginTop: 2,
+  },
+  savingsCard: {
+    marginBottom: 12,
+    padding: 0,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#C8E6C9',
+    backgroundColor: '#FFFFFF',
+  },
+  savingsHeaderBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#E8F5E9',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#C8E6C9',
+  },
+  savingsHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  savingsHeaderText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#0A5D36',
+    flex: 1,
+  },
+  savingsBadge: {
+    backgroundColor: '#0A5D36',
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+  },
+  savingsBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  priceBreakdownContainer: {
+    padding: 14,
+  },
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  priceRowLabel: {
+    fontSize: 13,
+    color: colors.gray600,
+    fontWeight: '500',
+  },
+  priceRowValue: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.gray900,
+  },
+  marketPriceStrike: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.gray500,
+    textDecorationLine: 'line-through',
+  },
+  discountLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  discountRowLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#16A34A',
+  },
+  discountRowValue: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#16A34A',
+  },
+  dividerLine: {
+    height: 1,
+    backgroundColor: '#E2E8F0',
+    marginVertical: 10,
+  },
+  priceRowTotal: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  totalPaidLabel: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: colors.gray900,
+  },
+  totalPaidSubtext: {
+    fontSize: 11,
+    color: colors.gray500,
+    marginTop: 1,
+  },
+  totalPaidValue: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#FF4D00',
+  },
+  curiosityBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0FDF4',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderTopWidth: 1,
+    borderTopColor: '#DCFCE7',
+  },
+  curiosityText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#0A5D36',
+    flex: 1,
   },
   timelineCard: {
     marginBottom: 12,
