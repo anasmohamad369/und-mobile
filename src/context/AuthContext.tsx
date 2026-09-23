@@ -28,7 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [retailer, setRetailer] = useState<Retailer | null>(null);
-  const [verifiedMobile, setVerifiedMobile] = useState<string>('9876543210');
+  const [verifiedMobile, setVerifiedMobile] = useState<string>('9811223344');
   const [verificationToken, setVerificationToken] = useState<string>('');
 
   useEffect(() => {
@@ -38,12 +38,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loadStorageSession = async () => {
     try {
       const storedToken = await AsyncStorage.getItem(TOKEN_KEY);
-      if (storedToken) {
-        const profileRes = await retailerApi.getProfile();
-        if (profileRes.success && profileRes.data) {
-          setRetailer(profileRes.data);
-          setIsAuthenticated(true);
-        }
+      const storedRetailer = await AsyncStorage.getItem(RETAILER_KEY);
+
+      if (storedToken && storedRetailer) {
+        setRetailer(JSON.parse(storedRetailer));
+        setIsAuthenticated(true);
       }
     } catch (e) {
       console.log('Error restoring auth session', e);
@@ -63,8 +62,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setIsLoading(true);
       const res = await authApi.registerRetailer({
-        ...data,
-        mobile: verifiedMobile || data.mobile,
+        mobile: verifiedMobile || data.mobile || '9811223344',
+        fullName: data.ownerName || 'Retailer Owner',
+        businessName: data.businessName || 'Express Chicken Center',
+        email: data.email || `${verifiedMobile || '9811223344'}@nutrifarm.com`,
+        shopNumber: `SHOP-AP-${Math.floor(1000 + Math.random() * 9000)}`,
+        shopName: data.businessName ? `${data.businessName} - Main Shop` : 'Bhimavaram Main Shop',
+        address: data.addressLine1 || 'Station Road, Bhimavaram',
+        latitude: data.latitude || 16.5449,
+        longitude: data.longitude || 81.5212,
       });
 
       if (res.success && res.data) {

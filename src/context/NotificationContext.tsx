@@ -1,6 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { ratesApi } from '../api/rates.api';
-import { LiveRate } from '../types';
 
 interface ToastAlert {
   id: string;
@@ -20,21 +19,6 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [toast, setToast] = useState<ToastAlert | null>(null);
-
-  useEffect(() => {
-    // Subscribe to simulated WebSocket rate updates
-    const unsubscribe = ratesApi.subscribeToRateChanges((rate: LiveRate) => {
-      showToast(
-        'Rate Updated',
-        `Live Chicken rate updated to ₹${rate.ratePerKg}/KG`,
-        'warning'
-      );
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, []);
 
   const showToast = (title: string, message: string, type: ToastAlert['type'] = 'info') => {
     const id = Math.random().toString();

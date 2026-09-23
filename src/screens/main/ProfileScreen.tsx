@@ -9,9 +9,7 @@ import {
   User,
   Building2,
   Store,
-  CalendarRange,
   Bell,
-  HelpCircle,
   LogOut,
   ChevronRight,
   ShieldCheck,
@@ -28,7 +26,6 @@ interface ProfileScreenProps {
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   onEditProfile,
   onManageShops,
-  onViewRequirements,
   onViewNotifications,
 }) => {
   const insets = useSafeAreaInsets();
@@ -45,7 +42,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   return (
     <View style={styles.container}>
       {/* Top Header with Safe Area Inset */}
-      <View style={[styles.topHeader, { paddingTop: Math.max(insets.top, 14) }]}>
+      <View style={[styles.topHeader, { paddingTop: Math.max(insets.top + 6, 18) }]}>
         <Text style={styles.headerTitle}>{t('profileTitle')}</Text>
       </View>
 
@@ -57,18 +54,20 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           </View>
 
           <Text style={styles.businessTitle}>
-            {retailer?.businessName || 'Raj Chicken'}
+            {retailer?.businessName || 'NutriFarm Retailer'}
           </Text>
           <Text style={styles.ownerName}>
-            Owner: {retailer?.ownerName || 'Mohammed'}
+            Owner: {retailer?.ownerName || 'Retailer Owner'}
           </Text>
 
-          <View style={styles.verifiedTag}>
-            <ShieldCheck size={14} color={colors.success} style={{ marginRight: 4 }} />
-            <Text style={styles.verifiedTagText}>
-              Verified Mobile: +91 {retailer?.mobile || '9876543210'}
-            </Text>
-          </View>
+          {retailer?.mobile ? (
+            <View style={styles.verifiedTag}>
+              <ShieldCheck size={14} color={colors.success} style={{ marginRight: 4 }} />
+              <Text style={styles.verifiedTagText}>
+                Verified Mobile: +91 {retailer.mobile}
+              </Text>
+            </View>
+          ) : null}
         </View>
 
         {/* Profile Info Details */}
@@ -76,15 +75,15 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           <Text style={styles.sectionHeader}>Business Overview</Text>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>GST / Tax No:</Text>
-            <Text style={styles.infoVal}>{retailer?.gstNumber || '24ABCDE1234F1Z5'}</Text>
+            <Text style={styles.infoVal}>{retailer?.gstNumber || 'N/A'}</Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Email:</Text>
-            <Text style={styles.infoVal}>{retailer?.email || 'owner@nutrifarm.com'}</Text>
+            <Text style={styles.infoVal}>{retailer?.email || 'N/A'}</Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Location:</Text>
-            <Text style={styles.infoVal}>{retailer?.city || 'Ahmedabad'}, {retailer?.state || 'Gujarat'}</Text>
+            <Text style={styles.infoVal}>{retailer?.city || 'Bhimavaram'}, {retailer?.state || 'Andhra Pradesh'}</Text>
           </View>
         </Card>
 
@@ -121,7 +120,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             <ChevronRight size={18} color={colors.gray400} />
           </TouchableOpacity>
 
-
           <TouchableOpacity style={styles.menuItem} activeOpacity={0.7} onPress={onViewNotifications}>
             <View style={styles.menuIconBox}>
               <Bell size={20} color={colors.primary} />
@@ -141,7 +139,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {

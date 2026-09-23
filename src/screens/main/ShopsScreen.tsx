@@ -6,7 +6,7 @@ import { Button } from '../../components/common/Button';
 import { colors } from '../../theme/colors';
 import { useShopContext } from '../../context/ShopContext';
 import { Shop } from '../../types';
-import { Store, MapPin, Phone, Plus, CheckCircle2, Pencil, Trash2, Navigation } from 'lucide-react-native';
+import { Store, MapPin, Phone, Plus, Pencil, Trash2, Navigation, Hash } from 'lucide-react-native';
 import { AddShopScreen } from '../shops/AddShopScreen';
 
 interface ShopsScreenProps {
@@ -50,6 +50,8 @@ export const ShopsScreen: React.FC<ShopsScreenProps> = ({ onAddShop }) => {
   }
 
   const renderShopItem = ({ item }: { item: Shop }) => {
+    const shopDisplayName = item.shopName || item.name || `Shop #${item.id}`;
+
     return (
       <Card style={styles.shopCard}>
         {/* Top Header Row */}
@@ -63,15 +65,14 @@ export const ShopsScreen: React.FC<ShopsScreenProps> = ({ onAddShop }) => {
               )}
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.shopName}>{item.name}</Text>
+              <Text style={styles.shopName}>{shopDisplayName}</Text>
 
-              {/* Blinkit / Zomato GPS Map Tag */}
-              <View style={styles.gpsRow}>
-                <Navigation size={12} color="#0A5D36" style={{ marginRight: 3 }} />
-                <Text style={styles.gpsText}>
-                  GPS: {item.latitude ? `${item.latitude.toFixed(4)}° N, ${item.longitude?.toFixed(4)}° E` : 'Map Coordinates Verified'}
-                </Text>
-              </View>
+              {item.shopNumber ? (
+                <View style={styles.shopNumberBadge}>
+                  <Hash size={11} color={colors.primaryDark} style={{ marginRight: 2 }} />
+                  <Text style={styles.shopNumberText}>{item.shopNumber}</Text>
+                </View>
+              ) : null}
             </View>
           </View>
         </View>
@@ -80,15 +81,17 @@ export const ShopsScreen: React.FC<ShopsScreenProps> = ({ onAddShop }) => {
         <View style={styles.infoRow}>
           <MapPin size={16} color={colors.gray500} style={styles.infoIcon} />
           <Text style={styles.addressText}>
-            {item.address}, {item.city} - {item.pincode}
+            {item.address}
           </Text>
         </View>
 
         {/* Phone Row */}
-        <View style={styles.infoRow}>
-          <Phone size={16} color={colors.gray500} style={styles.infoIcon} />
-          <Text style={styles.phoneText}>+91 {item.mobile}</Text>
-        </View>
+        {item.mobile ? (
+          <View style={styles.infoRow}>
+            <Phone size={16} color={colors.gray500} style={styles.infoIcon} />
+            <Text style={styles.phoneText}>+91 {item.mobile}</Text>
+          </View>
+        ) : null}
 
         {/* Action Buttons Row: Edit & Delete */}
         <View style={styles.actionRow}>
@@ -140,7 +143,6 @@ export const ShopsScreen: React.FC<ShopsScreenProps> = ({ onAddShop }) => {
             </View>
             <View style={styles.addShopCardTextContainer}>
               <Text style={styles.addShopCardTitle}>Add New Shop Location</Text>
-            
             </View>
           </TouchableOpacity>
         }
@@ -148,7 +150,7 @@ export const ShopsScreen: React.FC<ShopsScreenProps> = ({ onAddShop }) => {
 
       <View style={styles.footer}>
         <Button
-          title="Add Another Shop (GPS Map)"
+          title="Add Another Shop"
           variant="primary"
           size="lg"
           icon={<Plus size={20} color={colors.textWhite} />}
@@ -170,24 +172,6 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: colors.gray200,
-  },
-  headerTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  headerAddBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    paddingVertical: 7,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-  },
-  headerAddBtnText: {
-    color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '800',
   },
   title: {
     fontSize: 26,
@@ -217,21 +201,16 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 2,
   },
-  selectedCard: {
-    borderColor: '#0A5D36',
-    backgroundColor: '#F4FBF7',
-  },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   shopNameBox: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    paddingRight: 8,
   },
   iconBox: {
     width: 40,
@@ -249,49 +228,23 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     resizeMode: 'cover',
   },
-  iconBoxActive: {
-    backgroundColor: '#E8F5E9',
-  },
   shopName: {
     fontSize: 16,
     fontWeight: '900',
     color: colors.gray900,
   },
-  gpsRow: {
+  shopNumberBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 2,
-  },
-  gpsText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#0A5D36',
-  },
-  activePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#E8F5E9',
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#A5D6A7',
-  },
-  activeText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#0A5D36',
-  },
-  selectBtn: {
     backgroundColor: colors.primaryLight,
-    paddingVertical: 5,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#FFD6C6',
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+    marginTop: 3,
   },
-  selectBtnText: {
-    fontSize: 12,
+  shopNumberText: {
+    fontSize: 11,
     fontWeight: '800',
     color: colors.primaryDark,
   },
@@ -380,12 +333,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '900',
     color: colors.primaryDark,
-  },
-  addShopCardSub: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.gray600,
-    marginTop: 2,
   },
   footer: {
     padding: 16,

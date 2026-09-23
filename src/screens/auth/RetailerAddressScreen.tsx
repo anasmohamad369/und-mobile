@@ -19,11 +19,11 @@ interface RetailerAddressScreenProps {
 
 export const RetailerAddressScreen: React.FC<RetailerAddressScreenProps> = ({ onContinue, onBack }) => {
   const insets = useSafeAreaInsets();
-  const [addressLine1, setAddressLine1] = useState<string>('Shop 12, Poultry Wholesale Market');
-  const [addressLine2, setAddressLine2] = useState<string>('Near Ring Road');
-  const [city, setCity] = useState<string>('Ahmedabad');
-  const [state, setState] = useState<string>('Gujarat');
-  const [pincode, setPincode] = useState<string>('380058');
+  const [addressLine1, setAddressLine1] = useState<string>('');
+  const [addressLine2, setAddressLine2] = useState<string>('');
+  const [city, setCity] = useState<string>('');
+  const [state, setState] = useState<string>('');
+  const [pincode, setPincode] = useState<string>('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleNext = () => {
@@ -42,7 +42,7 @@ export const RetailerAddressScreen: React.FC<RetailerAddressScreenProps> = ({ on
       addressLine1,
       addressLine2,
       city,
-      state,
+      state: state || 'Andhra Pradesh',
       pincode,
     });
   };
@@ -67,7 +67,7 @@ export const RetailerAddressScreen: React.FC<RetailerAddressScreenProps> = ({ on
         <View style={styles.formGroup}>
           <Input
             label="Address Line 1 *"
-            placeholder="Shop 12, Market Complex"
+            placeholder="e.g. Station Road, Door No 4-82"
             value={addressLine1}
             onChangeText={(v) => {
               setAddressLine1(v);
@@ -78,14 +78,14 @@ export const RetailerAddressScreen: React.FC<RetailerAddressScreenProps> = ({ on
 
           <Input
             label="Address Line 2"
-            placeholder="Opposite Central Bus Stop"
+            placeholder="e.g. Near Main Circle / Market"
             value={addressLine2}
             onChangeText={setAddressLine2}
           />
 
           <Input
             label="City *"
-            placeholder="Ahmedabad"
+            placeholder="e.g. Bhimavaram"
             value={city}
             onChangeText={(v) => {
               setCity(v);
@@ -96,14 +96,14 @@ export const RetailerAddressScreen: React.FC<RetailerAddressScreenProps> = ({ on
 
           <Input
             label="State *"
-            placeholder="Gujarat"
+            placeholder="e.g. Andhra Pradesh"
             value={state}
             onChangeText={setState}
           />
 
           <Input
             label="Pincode *"
-            placeholder="380058"
+            placeholder="e.g. 534201"
             keyboardType="number-pad"
             maxLength={6}
             value={pincode}

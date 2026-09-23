@@ -19,53 +19,8 @@ export const INITIAL_RETAILER: Retailer = {
   createdAt: '2026-01-15T08:00:00Z',
 };
 
-export const INITIAL_SHOPS: Shop[] = [
-  {
-    id: 1,
-    retailerId: 101,
-    name: 'NutriFarm - Bopal',
-    mobile: '9876543211',
-    address: 'Shop 4, Bopal Main Road, Opp SBI Bank',
-    addressLine2: 'Bopal',
-    city: 'Ahmedabad',
-    state: 'Gujarat',
-    pincode: '380058',
-    latitude: 23.0305,
-    longitude: 72.4645,
-    status: 'ACTIVE',
-    isDefault: true,
-  },
-  {
-    id: 2,
-    retailerId: 101,
-    name: 'NutriFarm - Satellite',
-    mobile: '9876543212',
-    address: 'Plot 18, Near Star Bazaar, Satellite Road',
-    addressLine2: 'Satellite',
-    city: 'Ahmedabad',
-    state: 'Gujarat',
-    pincode: '380015',
-    latitude: 23.028,
-    longitude: 72.5204,
-    status: 'ACTIVE',
-    isDefault: false,
-  },
-  {
-    id: 3,
-    retailerId: 101,
-    name: 'NutriFarm - SG Highway',
-    mobile: '9876543213',
-    address: 'G-12, Titanium City Centre, SG Highway',
-    addressLine2: 'SG Highway',
-    city: 'Ahmedabad',
-    state: 'Gujarat',
-    pincode: '380054',
-    latitude: 23.0415,
-    longitude: 72.5112,
-    status: 'ACTIVE',
-    isDefault: false,
-  },
-];
+// Removed all static mock shops - Shops are strictly fetched & stored via real Spring Boot REST APIs (/api/v1/retailer/shops)
+export const INITIAL_SHOPS: Shop[] = [];
 
 export const INITIAL_LIVE_RATE: LiveRate = {
   id: 1,
@@ -107,113 +62,14 @@ export const INITIAL_DELIVERY_OPTIONS: DeliveryDateOption[] = [
       { id: 'slot-1', label: '08:00 AM - 10:00 AM', available: true },
       { id: 'slot-2', label: '10:00 AM - 12:00 PM', available: true },
       { id: 'slot-3', label: '12:00 PM - 02:00 PM', available: true },
-      { id: 'slot-4', label: '02:00 PM - 04:00 PM', available: true },
+      { id: 'slot-4', label: '04:00 PM - 06:00 PM', available: true },
     ],
   },
 ];
 
-export const INITIAL_ORDERS: Order[] = [
-  {
-    id: 'ORD-10245',
-    retailerId: 101,
-    shopId: 1,
-    items: [
-      {
-        id: 1,
-        chickenTypeId: 1,
-        chickenTypeName: 'Live Broiler Chicken',
-        quantityKg: 250,
-        ratePerKg: 102,
-        subtotal: 25500,
-      },
-    ],
-    quantityKg: 250,
-    ratePerKg: 102,
-    subtotal: 25500,
-    deliveryFee: 0,
-    totalAmount: 25500,
-    status: 'OUT_FOR_DELIVERY',
-    paymentStatus: 'PAID',
-    paymentMethod: 'UPI',
-    delivery: {
-      shopId: 1,
-      shopName: 'NutriFarm - Bopal',
-      shopAddress: 'Shop 4, Bopal Main Road, Opp SBI Bank, Bopal',
-      shopCity: 'Ahmedabad',
-      shopPincode: '380058',
-      deliveryDate: '2026-08-11',
-      deliverySlot: '10:00 AM - 12:00 PM',
-      driver: {
-        id: 401,
-        name: 'Ravi Kumar',
-        mobile: '+91 9898989898',
-        vehicleNumber: 'GJ01XX1234',
-        status: 'ON_THE_WAY',
-      },
-    },
-    createdAt: '2026-08-11T10:32:00Z',
-    updatedAt: '2026-08-11T11:15:00Z',
-  },
-  {
-    id: 'ORD-10240',
-    retailerId: 101,
-    shopId: 2,
-    items: [
-      {
-        id: 2,
-        chickenTypeId: 1,
-        chickenTypeName: 'Live Broiler Chicken',
-        quantityKg: 500,
-        ratePerKg: 102,
-        subtotal: 51000,
-      },
-    ],
-    quantityKg: 500,
-    ratePerKg: 102,
-    subtotal: 51000,
-    deliveryFee: 0,
-    totalAmount: 51000,
-    status: 'DELIVERED',
-    paymentStatus: 'PAID',
-    paymentMethod: 'NET_BANKING',
-    delivery: {
-      shopId: 2,
-      shopName: 'NutriFarm - Satellite',
-      shopAddress: 'Plot 18, Near Star Bazaar, Satellite Road',
-      shopCity: 'Ahmedabad',
-      shopPincode: '380015',
-      deliveryDate: '2026-08-10',
-      deliverySlot: '02:00 PM - 04:00 PM',
-      driver: {
-        id: 402,
-        name: 'Suresh Patel',
-        mobile: '+91 9797979797',
-        vehicleNumber: 'GJ01YY5678',
-        status: 'COMPLETED',
-      },
-    },
-    createdAt: '2026-08-10T09:15:00Z',
-    updatedAt: '2026-08-10T15:30:00Z',
-  },
-];
+export const INITIAL_ORDERS: Order[] = [];
 
-export const INITIAL_REQUIREMENTS: Requirement[] = [
-  {
-    id: 501,
-    retailerId: 101,
-    shopId: 1,
-    shopName: 'NutriFarm - Bopal',
-    chickenType: 'Live Broiler Chicken',
-    expectedKg: 1000,
-    fromDate: '2026-08-12',
-    toDate: '2026-08-18',
-    notes: 'Expecting heavy weekend demand for catering orders.',
-    purchasedKg: 650,
-    remainingKg: 350,
-    status: 'IN_PROGRESS',
-    createdAt: '2026-08-09T14:00:00Z',
-  },
-];
+export const INITIAL_REQUIREMENTS: Requirement[] = [];
 
 export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
   {
@@ -223,23 +79,5 @@ export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
     timestamp: '10:32 AM',
     read: false,
     type: 'RATE_UPDATE',
-  },
-  {
-    id: 'notif-2',
-    title: 'Order Confirmed',
-    message: 'Order #ORD-10245 has been confirmed for NutriFarm - Bopal.',
-    timestamp: '10:34 AM',
-    read: false,
-    type: 'ORDER_STATUS',
-    orderId: 'ORD-10245',
-  },
-  {
-    id: 'notif-3',
-    title: 'Driver On The Way',
-    message: 'Driver Ravi Kumar (GJ01XX1234) is out for delivery with order #ORD-10245.',
-    timestamp: '11:15 AM',
-    read: true,
-    type: 'DRIVER_ASSIGNED',
-    orderId: 'ORD-10245',
   },
 ];

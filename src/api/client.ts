@@ -1,21 +1,26 @@
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const API_BASE_URL = 'https://api.chickencommerce.com/api/v1';
-
+// Production Railway Backend URL
+// export const API_BASE_URL = 'https://und-backend-production.up.railway.app/api/v1';
+export const API_BASE_URL = 'http://localhost:8080/api/v1';
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000,
+  timeout: 20000,
 });
 
 apiClient.interceptors.request.use(
   async (config) => {
-    // Attach authorization header if available
-    const token = 'mock_jwt_token_retailer';
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    try {
+      const token = await AsyncStorage.getItem('@chicken_commerce_token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (e) {
+      console.log('Error attaching authorization token', e);
     }
     return config;
   },
@@ -25,7 +30,11 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    const customError = error.response?.data?.message || 'Network request failed. Please try again.';
+    const customError =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message ||
+      'Network request failed. Please check your connection.';
     return Promise.reject(new Error(customError));
   }
 );

@@ -5,7 +5,7 @@ import { Button } from '../../components/common/Button';
 import { colors } from '../../theme/colors';
 import { useShopContext } from '../../context/ShopContext';
 import { Shop } from '../../types';
-import { Camera, ImagePlus, Trash2, MapPin } from 'lucide-react-native';
+import { Camera, ImagePlus, Trash2 } from 'lucide-react-native';
 
 import * as ImagePicker from 'expo-image-picker';
 
@@ -19,8 +19,8 @@ export const AddShopScreen: React.FC<AddShopScreenProps> = ({ onSuccess, shopToE
 
   const isEditMode = !!shopToEdit;
 
-  // Clean empty initial states (no predefined text)
-  const [name, setName] = useState<string>(shopToEdit?.name || '');
+  const [shopNumber, setShopNumber] = useState<string>(shopToEdit?.shopNumber || '');
+  const [name, setName] = useState<string>(shopToEdit?.shopName || shopToEdit?.name || '');
   const [mobile, setMobile] = useState<string>(shopToEdit?.mobile || '');
   const [address, setAddress] = useState<string>(shopToEdit?.address || '');
   const [city, setCity] = useState<string>(shopToEdit?.city || '');
@@ -32,16 +32,16 @@ export const AddShopScreen: React.FC<AddShopScreenProps> = ({ onSuccess, shopToE
 
   useEffect(() => {
     if (shopToEdit) {
-      setName(shopToEdit.name);
-      setMobile(shopToEdit.mobile);
-      setAddress(shopToEdit.address);
-      setCity(shopToEdit.city);
-      setPincode(shopToEdit.pincode);
+      setShopNumber(shopToEdit.shopNumber || '');
+      setName(shopToEdit.shopName || shopToEdit.name || '');
+      setMobile(shopToEdit.mobile || '');
+      setAddress(shopToEdit.address || '');
+      setCity(shopToEdit.city || '');
+      setPincode(shopToEdit.pincode || '');
       if (shopToEdit.photoUrl) setPhotoUrl(shopToEdit.photoUrl);
     }
   }, [shopToEdit]);
 
-  // Real Native Camera Photo Launch via expo-image-picker (Portrait 9:16 ratio)
   const takePhotoWithCamera = async () => {
     try {
       const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
@@ -62,11 +62,9 @@ export const AddShopScreen: React.FC<AddShopScreenProps> = ({ onSuccess, shopToE
       }
     } catch (e) {
       console.log('Error launching camera', e);
-      setPhotoUrl('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=720&q=80');
     }
   };
 
-  // Real Native Gallery Image Picker via expo-image-picker (Portrait 9:16 ratio)
   const pickImageFromGallery = async () => {
     try {
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -87,7 +85,6 @@ export const AddShopScreen: React.FC<AddShopScreenProps> = ({ onSuccess, shopToE
       }
     } catch (e) {
       console.log('Error picking image from gallery', e);
-      setPhotoUrl('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=720&q=80');
     }
   };
 
@@ -96,14 +93,8 @@ export const AddShopScreen: React.FC<AddShopScreenProps> = ({ onSuccess, shopToE
       'Upload Shop Photo 📸',
       'Choose an option to upload shop storefront photo',
       [
-        {
-          text: 'Take Photo (Camera 📷)',
-          onPress: takePhotoWithCamera,
-        },
-        {
-          text: 'Choose from Gallery 🖼️',
-          onPress: pickImageFromGallery,
-        },
+        { text: 'Take Photo (Camera 📷)', onPress: takePhotoWithCamera },
+        { text: 'Choose from Gallery 🖼️', onPress: pickImageFromGallery },
         { text: 'Cancel', style: 'cancel' },
       ]
     );
@@ -119,8 +110,6 @@ export const AddShopScreen: React.FC<AddShopScreenProps> = ({ onSuccess, shopToE
     if (!name.trim()) errs.name = 'Shop Name is required';
     if (!mobile.trim() || mobile.length !== 10) errs.mobile = 'Valid 10-digit mobile required';
     if (!address.trim()) errs.address = 'Shop Address is required';
-    if (!city.trim()) errs.city = 'City is required';
-    if (!pincode.trim() || pincode.length !== 6) errs.pincode = 'Valid 6-digit Pincode required';
 
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
@@ -132,20 +121,24 @@ export const AddShopScreen: React.FC<AddShopScreenProps> = ({ onSuccess, shopToE
 
     if (isEditMode && shopToEdit) {
       result = await updateShop(shopToEdit.id, {
+        shopNumber: shopNumber || shopToEdit.shopNumber,
+        shopName: name,
         name,
         mobile,
         address,
-        city,
-        pincode,
+        city: city || 'Bhimavaram',
+        pincode: pincode || '534201',
         photoUrl,
       });
     } else {
       result = await addNewShop({
+        shopNumber: shopNumber || `SHOP-AP-${Math.floor(1000 + Math.random() * 9000)}`,
+        shopName: name,
         name,
         mobile,
         address,
-        city,
-        pincode,
+        city: city || 'Bhimavaram',
+        pincode: pincode || '534201',
         photoUrl,
       });
     }
@@ -190,11 +183,18 @@ export const AddShopScreen: React.FC<AddShopScreenProps> = ({ onSuccess, shopToE
         </TouchableOpacity>
       )}
 
-      {/* Form Fields with clean placeholders (no predefined text) */}
+      {/* Form Fields */}
       <View style={styles.formGroup}>
         <Input
+          label="Shop Number / Code"
+          placeholder="e.g. SHOP-AP-2002"
+          value={shopNumber}
+          onChangeText={setShopNumber}
+        />
+
+        <Input
           label="Shop Name *"
-          placeholder="e.g. Raj Chicken Center - Main Market"
+          placeholder="e.g. Bhimavaram Main Shop"
           value={name}
           onChangeText={(v) => {
             setName(v);
@@ -206,7 +206,7 @@ export const AddShopScreen: React.FC<AddShopScreenProps> = ({ onSuccess, shopToE
         <Input
           label="Shop Mobile *"
           prefix="+91"
-          placeholder="e.g. 9876543210"
+          placeholder="e.g. 9811223344"
           keyboardType="phone-pad"
           maxLength={10}
           value={mobile}
@@ -218,38 +218,14 @@ export const AddShopScreen: React.FC<AddShopScreenProps> = ({ onSuccess, shopToE
         />
 
         <Input
-          label="Shop Address / Area *"
-          placeholder="e.g. Door No 4-82, Near Main Circle"
+          label="Shop Address *"
+          placeholder="e.g. Station Road, Bhimavaram"
           value={address}
           onChangeText={(v) => {
             setAddress(v);
             if (errors.address) setErrors(e => ({ ...e, address: '' }));
           }}
           error={errors.address}
-        />
-
-        <Input
-          label="City / District *"
-          placeholder="e.g. Rajahmundry"
-          value={city}
-          onChangeText={(v) => {
-            setCity(v);
-            if (errors.city) setErrors(e => ({ ...e, city: '' }));
-          }}
-          error={errors.city}
-        />
-
-        <Input
-          label="Pincode *"
-          placeholder="e.g. 533285"
-          keyboardType="number-pad"
-          maxLength={6}
-          value={pincode}
-          onChangeText={(v) => {
-            setPincode(v);
-            if (errors.pincode) setErrors(e => ({ ...e, pincode: '' }));
-          }}
-          error={errors.pincode}
         />
       </View>
 

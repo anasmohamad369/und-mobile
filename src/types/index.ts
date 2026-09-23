@@ -1,3 +1,18 @@
+export type OrderStatus =
+  | 'PLACED'
+  | 'CONFIRMED'
+  | 'DISPATCHED'
+  | 'OUT_FOR_DELIVERY'
+  | 'DELIVERED'
+  | 'CANCELLED'
+  | 'PENDING_PAYMENT'
+  | 'FAILED'
+  | 'DRIVER_ASSIGNED';
+
+export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'UNPAID';
+
+export type PaymentMethod = 'UPI' | 'NET_BANKING' | 'CREDIT_CARD' | 'WALLET' | 'CASH' | 'CARD' | 'BANK_TRANSFER';
+
 export interface Retailer {
   id: number;
   businessName: string;
@@ -20,18 +35,21 @@ export interface Retailer {
 export interface Shop {
   id: number;
   retailerId: number;
+  shopNumber?: string;
   name: string;
+  shopName?: string;
   mobile: string;
   address: string;
   addressLine2?: string;
-  city: string;
+  city?: string;
   state?: string;
-  pincode: string;
+  pincode?: string;
   latitude?: number;
   longitude?: number;
   photoUrl?: string;
   status: 'ACTIVE' | 'INACTIVE';
   isDefault?: boolean;
+  createdAt?: string;
 }
 
 export interface Farm {
@@ -42,7 +60,7 @@ export interface Farm {
 
 export interface ChickenType {
   id: number;
-  name: string; // e.g. "Live Broiler Chicken"
+  name: string;
   description: string;
 }
 
@@ -51,7 +69,7 @@ export interface LiveRate {
   farmId: number;
   farmName: string;
   ratePerKg: number;
-  previousRatePerKg?: number;
+  previousRatePerKg: number;
   currency: string;
   updatedAt: string;
   isLive: boolean;
@@ -66,28 +84,6 @@ export interface InventoryAvailability {
   lastUpdated: string;
 }
 
-export interface DeliverySlot {
-  id: string;
-  label: string; // e.g. "10:00 AM - 12:00 PM"
-  available: boolean;
-}
-
-export interface DeliveryDateOption {
-  date: string; // YYYY-MM-DD
-  label: string; // e.g. "Today (12 Aug)"
-  isAvailable: boolean;
-  slots: DeliverySlot[];
-}
-
-export type OrderStatus =
-  | 'PENDING_PAYMENT'
-  | 'CONFIRMED'
-  | 'DRIVER_ASSIGNED'
-  | 'OUT_FOR_DELIVERY'
-  | 'DELIVERED'
-  | 'CANCELLED'
-  | 'FAILED';
-
 export interface OrderItem {
   id: number;
   chickenTypeId: number;
@@ -95,14 +91,6 @@ export interface OrderItem {
   quantityKg: number;
   ratePerKg: number;
   subtotal: number;
-}
-
-export interface Driver {
-  id: number;
-  name: string;
-  mobile: string;
-  vehicleNumber: string;
-  status: 'ON_THE_WAY' | 'ARRIVED' | 'COMPLETED';
 }
 
 export interface DeliveryDetails {
@@ -113,13 +101,19 @@ export interface DeliveryDetails {
   shopPincode: string;
   deliveryDate: string;
   deliverySlot: string;
-  latitude?: number;
-  longitude?: number;
   driver?: Driver;
 }
 
+export interface Driver {
+  id: number;
+  name: string;
+  mobile: string;
+  vehicleNumber: string;
+  status: 'ASSIGNED' | 'ON_THE_WAY' | 'ARRIVED' | 'COMPLETED';
+}
+
 export interface Order {
-  id: string; // e.g. "ORD-10245"
+  id: string;
   retailerId: number;
   shopId: number;
   items: OrderItem[];
@@ -129,29 +123,53 @@ export interface Order {
   deliveryFee: number;
   totalAmount: number;
   status: OrderStatus;
-  paymentStatus: 'UNPAID' | 'PAID' | 'REFUNDED' | 'FAILED';
-  paymentMethod?: 'UPI' | 'CARD' | 'NET_BANKING' | 'BANK_TRANSFER';
+  paymentStatus: PaymentStatus;
+  paymentMethod: PaymentMethod;
   delivery: DeliveryDetails;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface PaymentInitiation {
-  paymentId: string;
-  orderId: string;
-  amount: number;
-  currency: string;
-  gatewayOrderId: string;
-  keyId: string;
+export interface CreateOrderPayload {
+  shopId: number;
+  quantityKg: number;
+  deliveryDate: string;
+  deliverySlot: string;
+  paymentMethod: string;
 }
 
-export interface PaymentVerification {
-  paymentId: string;
+export interface PaymentInitiation {
   orderId: string;
+  paymentId?: string;
+  keyId?: string;
+  amount: number;
+  currency: string;
+  gatewayKey: string;
+  gatewayOrderId: string;
+}
+
+export interface DeliverySlotOption {
+  id: string;
+  label: string;
+  available: boolean;
+}
+
+export interface DeliveryDateOption {
+  date: string;
+  label: string;
+  isAvailable: boolean;
+  slots: DeliverySlotOption[];
+}
+
+export interface PaymentVerificationPayload {
+  orderId: string;
+  paymentId?: string;
   gatewayPaymentId: string;
   gatewaySignature: string;
   success: boolean;
 }
+
+export type PaymentVerification = PaymentVerificationPayload;
 
 export interface Requirement {
   id: number;

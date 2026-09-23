@@ -29,7 +29,6 @@ export const AuthNavigator: React.FC = () => {
 
   const handleFinishSplash = () => setStep('WELCOME');
   const handleGetStarted = () => setStep('MOBILE');
-  const handleLogin = () => setStep('MOBILE');
   const handleContinueMobile = () => setStep('OTP');
 
   const handleVerifiedNewUser = () => setStep('RETAILER_INFO');
@@ -58,7 +57,7 @@ export const AuthNavigator: React.FC = () => {
     <View style={styles.container}>
       {step === 'SPLASH' && <SplashScreen onFinish={handleFinishSplash} />}
       {step === 'WELCOME' && (
-        <WelcomeScreen onGetStarted={handleGetStarted} onLogin={handleLogin} />
+        <WelcomeScreen onGetStarted={handleGetStarted} />
       )}
       {step === 'MOBILE' && (
         <MobileNumberScreen

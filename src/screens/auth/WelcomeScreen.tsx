@@ -6,10 +6,9 @@ import { ArrowRight } from 'lucide-react-native';
 
 interface WelcomeScreenProps {
   onGetStarted: () => void;
-  onLogin: () => void;
 }
 
-export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted, onLogin }) => {
+export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
   return (
     <View style={styles.container}>
       <View style={styles.heroBox}>
@@ -35,15 +34,6 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted, onLo
           icon={<ArrowRight size={20} color={colors.textWhite} />}
           onPress={onGetStarted}
           style={styles.mainBtn}
-        />
-
-        <Button
-          title="I Already Have an Account"
-          variant="outline"
-          size="lg"
-          textStyle={styles.loginBtnText}
-          onPress={onLogin}
-          style={styles.loginBtn}
         />
       </View>
     </View>
@@ -100,17 +90,6 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   mainBtn: {
-    marginBottom: 12,
-  },
-  loginBtn: {
-    backgroundColor: '#F8FAFC',
-    borderColor: colors.gray300,
-    borderWidth: 1.5,
-    borderRadius: 14,
-  },
-  loginBtnText: {
-    color: '#0F172A',
-    fontWeight: '800',
-    fontSize: 15,
+    marginBottom: 10,
   },
 });

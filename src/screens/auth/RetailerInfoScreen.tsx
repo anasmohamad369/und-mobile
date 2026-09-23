@@ -21,18 +21,18 @@ interface RetailerInfoScreenProps {
 export const RetailerInfoScreen: React.FC<RetailerInfoScreenProps> = ({ onContinue, onBack }) => {
   const insets = useSafeAreaInsets();
   const { verifiedMobile } = useAuthContext();
-  const [businessName, setBusinessName] = useState<string>('NutriFarm Chicken Traders');
-  const [ownerName, setOwnerName] = useState<string>('Mohammed');
-  const [alternateMobile, setAlternateMobile] = useState<string>('9876543211');
-  const [email, setEmail] = useState<string>('owner@nutrifarm.com');
-  const [gstNumber, setGstNumber] = useState<string>('24ABCDE1234F1Z5');
+  const [businessName, setBusinessName] = useState<string>('');
+  const [ownerName, setOwnerName] = useState<string>('');
+  const [alternateMobile, setAlternateMobile] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [gstNumber, setGstNumber] = useState<string>('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleNext = () => {
     const errs: { [key: string]: string } = {};
 
     if (!businessName.trim()) {
-      errs.businessName = 'Business/Retailer name is required';
+      errs.businessName = 'Business / Retailer name is required';
     }
     if (!ownerName.trim()) {
       errs.ownerName = 'Owner name is required';
@@ -72,7 +72,7 @@ export const RetailerInfoScreen: React.FC<RetailerInfoScreenProps> = ({ onContin
         <View style={styles.formGroup}>
           <Input
             label="Business / Retailer Name *"
-            placeholder="NutriFarm Chicken Traders"
+            placeholder="e.g. Anass Express Chicken Center"
             value={businessName}
             onChangeText={(v) => {
               setBusinessName(v);
@@ -83,7 +83,7 @@ export const RetailerInfoScreen: React.FC<RetailerInfoScreenProps> = ({ onContin
 
           <Input
             label="Owner Name *"
-            placeholder="Mohammed"
+            placeholder="e.g. Mohamad Anass"
             value={ownerName}
             onChangeText={(v) => {
               setOwnerName(v);
@@ -95,7 +95,7 @@ export const RetailerInfoScreen: React.FC<RetailerInfoScreenProps> = ({ onContin
           <View style={styles.verifiedMobileBox}>
             <Text style={styles.verifiedMobileLabel}>Verified Mobile Number</Text>
             <View style={styles.verifiedMobileRow}>
-              <Text style={styles.verifiedMobileText}>+91 {verifiedMobile || '9876543210'}</Text>
+              <Text style={styles.verifiedMobileText}>+91 {verifiedMobile || '9811223344'}</Text>
               <View style={styles.verifiedBadge}>
                 <CheckCircle size={14} color={colors.success} style={{ marginRight: 4 }} />
                 <Text style={styles.verifiedBadgeText}>Verified</Text>
@@ -106,7 +106,7 @@ export const RetailerInfoScreen: React.FC<RetailerInfoScreenProps> = ({ onContin
           <Input
             label="Alternate Mobile"
             prefix="+91"
-            placeholder="9876543211"
+            placeholder="e.g. 9811223344"
             keyboardType="phone-pad"
             maxLength={10}
             value={alternateMobile}
@@ -115,7 +115,7 @@ export const RetailerInfoScreen: React.FC<RetailerInfoScreenProps> = ({ onContin
 
           <Input
             label="Email Address"
-            placeholder="owner@business.com"
+            placeholder="e.g. owner@expresschicken.com"
             keyboardType="email-address"
             value={email}
             onChangeText={setEmail}
@@ -123,7 +123,7 @@ export const RetailerInfoScreen: React.FC<RetailerInfoScreenProps> = ({ onContin
 
           <Input
             label="GST / Tax Number"
-            placeholder="24ABCDE1234F1Z5"
+            placeholder="e.g. 24ABCDE1234F1Z5"
             value={gstNumber}
             onChangeText={setGstNumber}
           />

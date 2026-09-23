@@ -24,11 +24,11 @@ export const AddFirstShopScreen: React.FC<AddFirstShopScreenProps> = ({
   loading = false,
 }) => {
   const insets = useSafeAreaInsets();
-  const [name, setName] = useState<string>('NutriFarm - Bopal');
-  const [mobile, setMobile] = useState<string>('9876543211');
-  const [address, setAddress] = useState<string>('Shop 4, Bopal Main Road, Opp SBI Bank');
-  const [city, setCity] = useState<string>('Ahmedabad');
-  const [pincode, setPincode] = useState<string>('380058');
+  const [name, setName] = useState<string>('');
+  const [mobile, setMobile] = useState<string>('');
+  const [address, setAddress] = useState<string>('');
+  const [city, setCity] = useState<string>('');
+  const [pincode, setPincode] = useState<string>('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleSaveShop = () => {
@@ -37,8 +37,6 @@ export const AddFirstShopScreen: React.FC<AddFirstShopScreenProps> = ({
     if (!name.trim()) errs.name = 'Shop Name is required';
     if (!mobile.trim() || mobile.length !== 10) errs.mobile = 'Valid 10-digit mobile required';
     if (!address.trim()) errs.address = 'Shop Address is required';
-    if (!city.trim()) errs.city = 'City is required';
-    if (!pincode.trim() || pincode.length !== 6) errs.pincode = 'Valid 6-digit Pincode required';
 
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
@@ -49,8 +47,8 @@ export const AddFirstShopScreen: React.FC<AddFirstShopScreenProps> = ({
       name,
       mobile,
       address,
-      city,
-      pincode,
+      city: city || 'Bhimavaram',
+      pincode: pincode || '534201',
     });
   };
 
@@ -74,7 +72,7 @@ export const AddFirstShopScreen: React.FC<AddFirstShopScreenProps> = ({
         <View style={styles.formGroup}>
           <Input
             label="Shop Name *"
-            placeholder="NutriFarm - Bopal"
+            placeholder="e.g. Bhimavaram Main Shop"
             value={name}
             onChangeText={(v) => {
               setName(v);
@@ -86,7 +84,7 @@ export const AddFirstShopScreen: React.FC<AddFirstShopScreenProps> = ({
           <Input
             label="Shop Mobile *"
             prefix="+91"
-            placeholder="9876543211"
+            placeholder="e.g. 9811223344"
             keyboardType="phone-pad"
             maxLength={10}
             value={mobile}
@@ -99,7 +97,7 @@ export const AddFirstShopScreen: React.FC<AddFirstShopScreenProps> = ({
 
           <Input
             label="Shop Address *"
-            placeholder="Shop 4, Main Road, Opp SBI Bank"
+            placeholder="e.g. Station Road, Door No 4-82"
             value={address}
             onChangeText={(v) => {
               setAddress(v);
@@ -110,7 +108,7 @@ export const AddFirstShopScreen: React.FC<AddFirstShopScreenProps> = ({
 
           <Input
             label="City *"
-            placeholder="Ahmedabad"
+            placeholder="e.g. Bhimavaram"
             value={city}
             onChangeText={(v) => {
               setCity(v);
@@ -121,7 +119,7 @@ export const AddFirstShopScreen: React.FC<AddFirstShopScreenProps> = ({
 
           <Input
             label="Pincode *"
-            placeholder="380058"
+            placeholder="e.g. 534201"
             keyboardType="number-pad"
             maxLength={6}
             value={pincode}

@@ -6,7 +6,13 @@ export const notificationsApi = {
     return mockBackendEngine.getNotifications();
   },
 
+  markAsRead: async (id: string): Promise<ApiResponse<boolean>> => {
+    const res = await mockBackendEngine.markNotificationRead(id);
+    return { success: res.success, data: true };
+  },
+
   markRead: async (id: string): Promise<ApiResponse<boolean>> => {
-    return mockBackendEngine.markNotificationRead(id);
+    const res = await mockBackendEngine.markNotificationRead(id);
+    return { success: res.success, data: true };
   },
 };

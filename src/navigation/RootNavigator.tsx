@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthContext } from '../context/AuthContext';
-import { useNotificationContext } from '../context/NotificationContext';
-import { useShopContext } from '../context/ShopContext';
 import { useLanguage } from '../context/LanguageContext';
 import { LanguageModal } from '../components/common/LanguageModal';
 import { AuthNavigator } from './AuthNavigator';
@@ -22,8 +20,7 @@ import { EditProfileScreen } from '../screens/profile/EditProfileScreen';
 import { NotificationsScreen } from '../screens/profile/NotificationsScreen';
 import { OfflineBanner } from '../components/common/OfflineBanner';
 import { colors } from '../theme/colors';
-import { Order } from '../types';
-import { ArrowLeft, AlertTriangle } from 'lucide-react-native';
+import { ArrowLeft } from 'lucide-react-native';
 import { REGIONAL_CIRCLES, CircleRate } from '../data/circlesData';
 
 type ScreenState =
@@ -44,13 +41,10 @@ type ScreenState =
 export const RootNavigator: React.FC = () => {
   const insets = useSafeAreaInsets();
   const { isAuthenticated, isLoading } = useAuthContext();
-  const { toast, hideToast } = useNotificationContext();
-  const { setSelectorModalVisible } = useShopContext();
   const { isLanguageModalVisible, setLanguageModalVisible } = useLanguage();
 
-
   const [currentTab, setCurrentTab] = useState<MainTabType>('HOME');
-  const [selectedCircle, setSelectedCircle] = useState<CircleRate>(REGIONAL_CIRCLES[0]);
+  const [selectedCircle] = useState<CircleRate>(REGIONAL_CIRCLES[0]);
   const [screen, setScreen] = useState<ScreenState>({ name: 'TABS' });
 
   if (isLoading) {
@@ -68,7 +62,7 @@ export const RootNavigator: React.FC = () => {
   const handleBackToTabs = () => setScreen({ name: 'TABS' });
 
   const renderStepHeader = (stepNum: number, onBack: () => void) => (
-    <View style={[styles.stepHeaderBar, { paddingTop: Math.max(insets.top, 12) }]}>
+    <View style={[styles.stepHeaderBar, { paddingTop: Math.max(insets.top + 6, 18) }]}>
       <TouchableOpacity style={styles.stepBackBtn} activeOpacity={0.7} onPress={onBack}>
         <ArrowLeft size={20} color={colors.gray900} />
       </TouchableOpacity>
@@ -81,7 +75,7 @@ export const RootNavigator: React.FC = () => {
   );
 
   const renderHeaderBar = (title: string, onBack: () => void) => (
-    <View style={[styles.headerBar, { paddingTop: Math.max(insets.top, 14) }]}>
+    <View style={[styles.headerBar, { paddingTop: Math.max(insets.top + 6, 18) }]}>
       <TouchableOpacity style={styles.backBtn} activeOpacity={0.7} onPress={onBack}>
         <ArrowLeft size={22} color={colors.gray900} />
       </TouchableOpacity>
@@ -92,16 +86,6 @@ export const RootNavigator: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {toast && (
-        <TouchableOpacity style={styles.toastBanner} activeOpacity={0.9} onPress={hideToast}>
-          <AlertTriangle size={18} color={colors.accent} style={{ marginRight: 10 }} />
-          <View style={{ flex: 1 }}>
-            <Text style={styles.toastTitle}>{toast.title}</Text>
-            <Text style={styles.toastMsg}>{toast.message}</Text>
-          </View>
-        </TouchableOpacity>
-      )}
-
       <OfflineBanner isOffline={false} />
 
       {screen.name === 'TABS' && (
@@ -244,9 +228,6 @@ export const RootNavigator: React.FC = () => {
         </View>
       )}
 
-
-
-
       {screen.name === 'ORDER_TRACKING' && (
         <View style={{ flex: 1 }}>
           {renderHeaderBar('Order Tracking', handleBackToTabs)}
@@ -297,7 +278,6 @@ export const RootNavigator: React.FC = () => {
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -365,29 +345,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
   headerTitle: {
     fontSize: 17,
     fontWeight: '800',
     color: colors.gray900,
-  },
-  toastBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1E293B',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 2,
-    borderBottomColor: colors.accent,
-  },
-  toastTitle: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: colors.accent,
-  },
-  toastMsg: {
-    fontSize: 12,
-    color: colors.textWhite,
-    marginTop: 2,
   },
 });

@@ -8,7 +8,7 @@ interface ShopContextType {
   selectedShop: Shop | null;
   isLoading: boolean;
   selectShop: (shopId: number) => void;
-  addNewShop: (data: Omit<Shop, 'id' | 'retailerId' | 'status'>) => Promise<Shop | null>;
+  addNewShop: (data: Partial<Shop>) => Promise<Shop | null>;
   updateShop: (shopId: number, data: Partial<Shop>) => Promise<Shop | null>;
   deleteShop: (shopId: number) => Promise<boolean>;
   refetchShops: () => Promise<void>;
@@ -28,6 +28,9 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     if (isAuthenticated) {
       fetchShops();
+    } else {
+      setShops([]);
+      setSelectedShop(null);
     }
   }, [isAuthenticated]);
 
@@ -35,11 +38,13 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setIsLoading(true);
       const res = await shopsApi.getShops();
-      if (res.success && res.data.length > 0) {
+      if (res.success && Array.isArray(res.data)) {
         setShops(res.data);
-        if (!selectedShop) {
+        if (res.data.length > 0) {
           const defaultShop = res.data.find(s => s.isDefault) || res.data[0];
           setSelectedShop(defaultShop);
+        } else {
+          setSelectedShop(null);
         }
       }
     } catch (e) {
@@ -56,10 +61,18 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const addNewShop = async (data: Omit<Shop, 'id' | 'retailerId' | 'status'>): Promise<Shop | null> => {
+  const addNewShop = async (data: Partial<Shop>): Promise<Shop | null> => {
     try {
       setIsLoading(true);
-      const res = await shopsApi.addShop(data);
+      const res = await shopsApi.addShop({
+        shopNumber: data.shopNumber,
+        shopName: data.shopName || data.name || 'New Shop',
+        mobile: data.mobile || '9811223344',
+        address: data.address || '',
+        latitude: data.latitude,
+        longitude: data.longitude,
+      });
+
       if (res.success && res.data) {
         setShops(prev => [...prev, res.data]);
         if (!selectedShop) {
@@ -78,7 +91,15 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateShop = async (shopId: number, data: Partial<Shop>): Promise<Shop | null> => {
     try {
       setIsLoading(true);
-      const res = await shopsApi.updateShop(shopId, data);
+      const res = await shopsApi.updateShop(shopId, {
+        shopNumber: data.shopNumber,
+        shopName: data.shopName || data.name,
+        mobile: data.mobile,
+        address: data.address,
+        latitude: data.latitude,
+        longitude: data.longitude,
+      });
+
       if (res.success && res.data) {
         setShops(prev => prev.map(s => s.id === shopId ? res.data : s));
         if (selectedShop?.id === shopId) {

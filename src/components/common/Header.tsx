@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthContext } from '../../context/AuthContext';
-import { useShopContext } from '../../context/ShopContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { ChevronDown, Bell } from 'lucide-react-native';
 
@@ -29,7 +28,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <View style={[styles.container, { paddingTop: Math.max(insets.top, 10) }]}>
+    <View style={[styles.container, { paddingTop: Math.max(insets.top + 8, 22) }]}>
       {/* Top Bar with NutriFarm Brand Logo, Notification Bell, and User Profile Avatar */}
       <View style={styles.topBar}>
         {/* NutriFarm Brand Logo matching reference design */}
@@ -103,11 +102,6 @@ export const Header: React.FC<HeaderProps> = ({
           <Text style={styles.greetingTitle}>
             {t(getGreetingKey())}, {retailer?.ownerName || 'Raj'}! 👋
           </Text>
-
-          {/* Business / Shop Name Subtitle */}
-          {/* <Text style={styles.businessSubtitle}>
-            {retailer?.businessName || 'Raj Chicken Center'}
-          </Text> */}
         </View>
       </View>
     </View>
@@ -116,7 +110,7 @@ export const Header: React.FC<HeaderProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFF9F4', // Warm cream background spanning edge-to-edge
+    backgroundColor: '#FFF9F4',
     marginHorizontal: -16,
     paddingHorizontal: 16,
     paddingBottom: 6,
@@ -262,11 +256,4 @@ const styles = StyleSheet.create({
     color: '#0F172A',
     letterSpacing: -0.4,
   },
-  businessSubtitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#475569',
-    marginTop: 3,
-  },
 });
-
